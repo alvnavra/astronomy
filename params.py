@@ -1,4 +1,5 @@
+import pymongo
 from pymongo import MongoClient
 url = None
-client = MongoClient('mongodb://harry:temporal1@ds119060.mlab.com:19060/astronomy')
-db = client.astronomy
+client = MongoClient('mongodb://localhost:27017/')
+db = client.flashes

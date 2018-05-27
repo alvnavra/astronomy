@@ -1,6 +1,6 @@
 from urllib.request import urlretrieve
 from astropy.io import fits
-from our_swift import Swift
+from our_fits import Fits
 from our_maxi import Maxi
 from our_fermi import Fermi
 
@@ -14,7 +14,7 @@ import urllib.request'''
 fits = 3
 if fits == 1:
     tool_name = 'swift'
-    myFits = Swift(tool_name)
+    myFits = Fits(tool_name)
     url = myFits.getUrl()
     l_name = url.split('/')
     name = l_name[-1]

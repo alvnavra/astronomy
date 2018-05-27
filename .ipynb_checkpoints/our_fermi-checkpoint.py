@@ -6,7 +6,6 @@ def tratar_tabla(p_tabla):
     tab = tab.replace('<table>','').replace('</table>','').replace("  ",'').replace('<tr>','').replace('<td>','').replace('<tr align=left>','')
     i = 0
     tr = 999
-    l_results = []
     while tr > 0:
         tag = '</tr>'
         if i == 0:
@@ -17,6 +16,7 @@ def tratar_tabla(p_tabla):
             tr = tab.find(tag)+len(tag)
             tab_aux = tab[0:tr]
             l_lna = tab_aux.split('</td>')
+            pass
             
 
 
