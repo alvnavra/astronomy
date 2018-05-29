@@ -29,7 +29,7 @@ class Maxi:
                 else:
                     html_aux = html[0:tr].replace('<tr>','').replace('</td>','').replace('align="center"',"")
                     l_aux = html_aux.split("<td >")
-                    source = l_aux[0].replace('\\n<td>','')
+                    source = l_aux[0].replace('\\n<td>','').replace('<td>','')
                     href = l_aux[2].replace('<a href="','')
                     fin_ref = href.find('.html')+len('.html')
                     href = href[0:fin_ref].replace('..','')

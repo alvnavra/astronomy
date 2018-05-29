@@ -20,7 +20,7 @@ if fits == 1:
     name = l_name[-1]
     myFits.downloadFits(url,name)
     #myFits.readFits(tool_name, name)
-    myFits.readSources(tool_name)
+    #myFits.readSources(tool_name)
 elif fits == 2:
     tool_name = 'maxi'
     my_maxi = Maxi(tool_name)

@@ -85,7 +85,7 @@ class Swift:
             modified_src = src.replace(' ','').replace('+','p')
             url_fit = url_swift+modified_src+'.lc.fits'
             self.downloadFits(url_fit, modified_src,os.path.abspath('.')+'/fits')
-            self.readFitsData(modified_src,os.path.abspath('.')+'/fits')
+            #self.readFitsData(modified_src,os.path.abspath('.')+'/fits')
 
 
         
