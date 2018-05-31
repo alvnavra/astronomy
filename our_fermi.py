@@ -53,6 +53,7 @@ def tratar_tabla(p_tabla):
             l_sources.append(dict_source)
             tab = tab[tr:]
             tr = tab.find(tag)
+    
     return l_sources
 
             
@@ -83,12 +84,14 @@ class Fermi:
                 html_aux = html[ini_table:fin_table+len('</table>')+len('</table>')]
                 l_tables.append(html_aux)
                 html = html[fin_table+len('</table>'):]
-        
+
+        l_rdo = []    
         for tab in l_tables:
-            l_tables = l_tables+tratar_tabla(tab)
+            l_rdo = l_rdo+tratar_tabla(tab)
         
+    
         sources = self.__db['sources']        
-        dict_source = {'tool_name':tool_name,'sources':l_tables}
+        dict_source = {'tool_name':tool_name,'sources':l_rdo}
         sources.update({'tool_name':tool_name},dict_source, upsert=True)
 
 
