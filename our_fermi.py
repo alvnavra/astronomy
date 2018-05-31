@@ -32,6 +32,9 @@ def tratar_tabla(p_tabla):
             l_lna = tab_aux.split('</td>')
             ini_source = l_lna[0].find('">')+2
             tag_source = (l_lna[0][ini_source:].replace("</a>","")).replace('<td>','')
+            if (tag_source.find("<a") >= 0):
+                ini_tag = tag_source.find('>')
+                tag_source = tag_source[ini_tag+1:]
             period1 = obtener_periodos(l_lna[1])
             period2 = obtener_periodos(l_lna[2])
             period3 = obtener_periodos(l_lna[3])
@@ -83,6 +86,10 @@ class Fermi:
         
         for tab in l_tables:
             l_tables = l_tables+tratar_tabla(tab)
+        
+        sources = self.__db['sources']        
+        dict_source = {'tool_name':tool_name,'sources':l_tables}
+        sources.update({'tool_name':tool_name},dict_source, upsert=True)
 
 
 
