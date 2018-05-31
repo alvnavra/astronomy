@@ -43,9 +43,9 @@ def tratar_tabla(p_tabla):
             url_simb = obtener_url(l_lna[6])
             dict_source = {}
             dict_source['source'] = tag_source
-            dict_source['period1'] = period1
-            dict_source['period2'] = period2
-            dict_source['perido3'] = period3
+            dict_source['LII'] = period1
+            dict_source['BII'] = period2
+            dict_source['period'] = period3
             dict_source['url_swift'] = url_sw
             dict_source['url_maxi'] = url_maxi
             dict_source['url_simbad'] = url_simb
