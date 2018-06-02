@@ -65,16 +65,13 @@ class Swift:
         lista = data.field(0)
         print (lista)
         print (len(lista))
-        source_list = []
         srcs = self.__db['sources']
-        dict_source = {}
-        dict_source['tool_name'] = tool_name
-        l_sources = []
         rng = range(0,len(lista))
         for r in rng:
-            l_sources.append(lista[r])
-        dict_source['sources'] = l_sources
-        srcs.save(dict_source)
+            dict_source = {}
+            dict_source['tool_name'] = tool_name
+            dict_source['source'] = lista[r]
+            srcs.update({'source':r},dict_source,upsert=True)
 
 
     def readSources(self, tool_name):

@@ -54,10 +54,12 @@ class Maxi:
                     print(url)
                     print(url_lc_1day)
                     print(url_lc_1orb)
-                    dict_source = {'source':source,'url':url,'url_1_orb':url_lc_1orb,'url_1_day':url_lc_1day}
-                    l_sources.append(dict_source)
-        
-        sources = self.__db['sources']        
+                    dict_source = {'source':source,'url':url,'url_1_orb':url_lc_1orb,'url_1_day':url_lc_1day,'tool_name':tool_name}
+                    sources = self.__db['sources']
+                    sources.update({'source':source},dict_source,upsert=True)
+
+        pass
+        '''sources = self.__db['sources']        
         dict_source = {'tool_name':tool_name,'sources':l_sources}
-        sources.update({'tool_name':tool_name},dict_source, upsert=True)
+        sources.update({'tool_name':tool_name},dict_source, upsert=True)'''
                 

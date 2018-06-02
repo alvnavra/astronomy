@@ -11,7 +11,7 @@ from astropy.io import fits
 from nasa_transient_weaks import nTransientWeaks
 import urllib.request'''
 
-fits = 3
+'''fits = 1
 if fits == 1:
     tool_name = 'swift'
     myFits = Swift(tool_name)
@@ -19,7 +19,7 @@ if fits == 1:
     l_name = url.split('/')
     name = l_name[-1]
     myFits.downloadFits(url,name)
-    #myFits.readFits(tool_name, name)
+    myFits.readFits(tool_name, name)
     #myFits.readSources(tool_name)
 elif fits == 2:
     tool_name = 'maxi'
@@ -31,4 +31,22 @@ elif fits == 3:
     my_fermi = Fermi(tool_name)
     url = my_fermi.getUrl()
     my_fermi.readSources(url,tool_name)
+'''
+tool_name = 'fermi'
+my_fermi = Fermi(tool_name)
+url = my_fermi.getUrl()
+my_fermi.readSources(url,tool_name)
 
+tool_name = 'maxi'
+my_maxi = Maxi(tool_name)
+url = my_maxi.getUrl()
+my_maxi.readSources(url,tool_name)
+
+tool_name = 'swift'
+myFits = Swift(tool_name)
+url = myFits.getUrl()
+l_name = url.split('/')
+name = l_name[-1]
+myFits.downloadFits(url,name)
+myFits.readFits(tool_name, name)
+#myFits.readSources(tool_name)

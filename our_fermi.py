@@ -13,7 +13,8 @@ def obtener_url(p_href):
         url = tag_aux[:fin_url]
     return url
    
-def tratar_tabla(p_tabla):
+def tratar_tabla(p_tabla, p_tool_name, p_collection):
+    p_collection.drop({}) #Muy importante!!!!!! Esta línea se tiene que ejecutar en la primera fuente que se baje.
     tab = p_tabla
     tab = tab.replace('<table>','').replace('</table>','').replace("  ",'').replace('<tr>','').replace('<td>','').replace('<tr align=left>','')
     i = 0
@@ -49,12 +50,10 @@ def tratar_tabla(p_tabla):
             dict_source['url_swift'] = url_sw
             dict_source['url_maxi'] = url_maxi
             dict_source['url_simbad'] = url_simb
-            print (tag_source)
-            l_sources.append(dict_source)
+            dict_source['tool_name']=p_tool_name
+            p_collection.update({'tool_name':tag_source},dict_source,upsert=True)
             tab = tab[tr:]
             tr = tab.find(tag)
-    
-    return l_sources
 
             
 
@@ -85,14 +84,8 @@ class Fermi:
                 l_tables.append(html_aux)
                 html = html[fin_table+len('</table>'):]
 
-        l_rdo = []    
         for tab in l_tables:
-            l_rdo = l_rdo+tratar_tabla(tab)
-        
-    
-        sources = self.__db['sources']        
-        dict_source = {'tool_name':tool_name,'sources':l_rdo}
-        sources.update({'tool_name':tool_name},dict_source, upsert=True)
+            tratar_tabla(tab, tool_name, self.__db['sources'])
 
 
 
