@@ -1,5 +1,6 @@
 from urllib.request import urlretrieve
 from astropy.io import fits
+from astropy.table import Table
 import os
 import params
 
@@ -62,16 +63,21 @@ class Swift:
 
         hdul = fits.open(file)
         data = hdul[1].data
-        lista = data.field(0)
-        print (lista)
-        print (len(lista))
+        names = data.names
         srcs = self.__db['sources']
-        rng = range(0,len(lista))
-        for r in rng:
-            dict_source = {}
-            dict_source['tool_name'] = tool_name
-            dict_source['source'] = lista[r]
-            srcs.update({'source':r},dict_source,upsert=True)
+
+        rows = range(0,len(data))        
+        for r in rows:
+            row = data[r]
+            cols = range(0,len(data.names))
+            dict_row = {'tool_name':tool_name}
+            for c in cols:
+                if isinstance(row[c],(str)):
+                    dict_row[data.names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).upper()
+                else:
+                    dict_row[data.names[c].lower()] = row[c].item()
+            print (dict_row)
+            srcs.update({'name':dict_row['name']},dict_row,upsert=True)
 
 
     def readSources(self, tool_name):
