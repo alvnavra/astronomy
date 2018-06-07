@@ -1,20 +1,30 @@
 import params
 import urllib.request
+from astroquery.simbad import Simbad
 
 def obtener_periodos(p_html):
     return(float(p_html.replace('<td align=right>','').replace('<td align="right">','')))
 
 def obtener_url(p_href):
     url = None
+    name = None
     if p_href != '<a></a>':
         ini_url = p_href.find('"')+1
         tag_aux = p_href[ini_url:]
         fin_url = tag_aux.find('"')
         url = tag_aux[:fin_url]
-    return url
+        name = tag_aux[fin_url:tag_aux.find("</a>")].replace('">',"")
+    return url,name
+
+def findSimbd(p_SimbId):
+    customSimbad = Simbad()
+    customSimbad.add_votable_fields('otype')
+    result_table = customSimbad.query_object(p_SimbId)
+    return str(result_table['OTYPE'])
+
    
 def tratar_tabla(p_tabla, p_tool_name, p_collection):
-    p_collection.drop({}) #Muy importante!!!!!! Esta línea se tiene que ejecutar en la primera fuente que se baje.
+    #p_collection.drop({}) #Muy importante!!!!!! Esta línea se tiene que ejecutar en la primera fuente que se baje.
     tab = p_tabla
     tab = tab.replace('<table>','').replace('</table>','').replace("  ",'').replace('<tr>','').replace('<td>','').replace('<tr align=left>','')
     i = 0
@@ -31,17 +41,21 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
             tr  = tr+len(tag) 
             tab_aux = tab[0:tr]
             l_lna = tab_aux.split('</td>')
-            ini_source = l_lna[0].find('">')+2
-            tag_source = (l_lna[0][ini_source:].replace("</a>","")).replace('<td>','')
-            if (tag_source.find("<a") >= 0):
-                ini_tag = tag_source.find('>')
-                tag_source = tag_source[ini_tag+1:]
+            ini_source = l_lna[0].find('">')
+            if ini_source >= 0:
+                ini_source = ini_source+2
+                tag_source = (l_lna[0][ini_source:].replace("</a>","")).replace('<td>','')
+                if (tag_source.find("<a") >= 0):
+                    ini_tag = tag_source.find('>')
+                    tag_source = tag_source[ini_tag+1:]
+            else:
+                tag_source = l_lna[0]
             period1 = obtener_periodos(l_lna[1])
             period2 = obtener_periodos(l_lna[2])
             period3 = obtener_periodos(l_lna[3])
-            url_sw = obtener_url(l_lna[4])
-            url_maxi = obtener_url(l_lna[5])
-            url_simb = obtener_url(l_lna[6])
+            name_sw, url_sw = obtener_url(l_lna[4])
+            name_maxi, url_maxi = obtener_url(l_lna[5])
+            url_simb,name_simb = obtener_url(l_lna[6])
             dict_source = {}
             dict_source['source'] = tag_source
             dict_source['LII'] = period1
@@ -50,6 +64,8 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
             dict_source['url_swift'] = url_sw
             dict_source['url_maxi'] = url_maxi
             dict_source['url_simbad'] = url_simb
+            dict_source['simbad_id'] = name_simb
+            dict_source['source_type'] = findSimbd(name_simb)
             dict_source['tool_name']=p_tool_name
             p_collection.update({'tool_name':tag_source},dict_source,upsert=True)
             tab = tab[tr:]
