@@ -19,9 +19,19 @@ def obtener_url(p_href):
 def findSimbd(p_SimbId):
     customSimbad = Simbad()
     customSimbad.add_votable_fields('otype')
-    result_table = customSimbad.query_object(p_SimbId)
-    return str(result_table['OTYPE'])
-
+    error = True
+    result_table = None
+    while error:
+        try:
+            result_table = customSimbad.query_object(p_SimbId)
+            rdo = str(result_table['OTYPE']).replace("  OTYPE   \n----------\n",'').replace("OTYPE\n-----\n ",'').replace("OTYPE \n------\n",'')
+            return rdo
+        except:
+            pos_mas = p_SimbId.find('+')
+            if pos_mas == -1:
+                return None
+            p_SimbId = p_SimbId.replace("+"," ",1)
+            error = True
    
 def tratar_tabla(p_tabla, p_tool_name, p_collection):
     #p_collection.drop({}) #Muy importante!!!!!! Esta línea se tiene que ejecutar en la primera fuente que se baje.
@@ -67,13 +77,11 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
             dict_source['simbad_id'] = name_simb
             dict_source['source_type'] = findSimbd(name_simb)
             dict_source['tool_name']=p_tool_name
-            p_collection.update({'tool_name':tag_source},dict_source,upsert=True)
+            p_collection.update({'tool_name':p_tool_name,'source':tag_source},dict_source,upsert=True)
             tab = tab[tr:]
             tr = tab.find(tag)
 
             
-
-
 class Fermi:
     __url = params.url
     __db = params.db
@@ -104,4 +112,8 @@ class Fermi:
             tratar_tabla(tab, tool_name, self.__db['sources'])
 
 
-
+if __name__ == '__main__':
+    tool_name = 'fermi'
+    my_fermi = Fermi(tool_name)
+    url = my_fermi.getUrl()
+    my_fermi.readSources(url,tool_name)

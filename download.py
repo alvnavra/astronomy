@@ -32,6 +32,7 @@ elif fits == 3:
     url = my_fermi.getUrl()
     my_fermi.readSources(url,tool_name)
 
+exit(0)
 tool_name = 'fermi'
 my_fermi = Fermi(tool_name)
 url = my_fermi.getUrl()
