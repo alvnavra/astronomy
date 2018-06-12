@@ -1,6 +1,32 @@
 import params
 import urllib.request
 
+def returnTypes(p_url):
+    html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
+    tr = html.find('<tr>')
+    html_aux = ''
+    i = 0
+    while (tr >= 0):
+        if i==0:
+            ini_tag = tr+len('<tr>')
+            html_aux = html[ini_tag:]
+            fin_tag = html_aux.find('</tr>')+len('</tr>')
+            html_aux = html_aux[fin_tag:]
+            i = i+1
+        else:
+            ini_tag = tr+len('<tr>')
+            fin_tag = ini_tag+html_aux.find('</tr>')+len('</tr>')
+            lna_aux = html_aux[ini_tag:fin_tag]
+            ini_tag = lna_aux.find('</th>')+len('</th>')
+            l_lna = lna_aux[ini_tag:].split('</td>')
+
+            source_ini = l_lna[0].find('">')+2
+            source_fin = l_lna[0][source_ini:].find('</a>')
+            source = (l_lna[0][source_ini:source_ini+source_fin]).strip()
+
+            type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
+        tr = html_aux.find('<tr>')
+
 class Maxi:
     __url = params.url
     __db = params.db
@@ -58,7 +84,17 @@ class Maxi:
                     sources = self.__db['sources']
                     sources.update({'source':source},dict_source,upsert=True)
 
+    def readTypes(self, p_tool_name):
+        parameters = self.__db['parameters']
+        sources_types_url = parameters.find_one({'_id':p_tool_name},{'src-type-url':1,'_id':0})['src-type-url']
+        for url in sources_types_url:
+            type_info = returnTypes(url)
+
+
         '''sources = self.__db['sources']        
         dict_source = {'tool_name':tool_name,'sources':l_sources}
         sources.update({'tool_name':tool_name},dict_source, upsert=True)'''
-                
+
+if __name__ == '__main__':
+    maxi = Maxi('maxi')
+    maxi.readTypes('maxi')
