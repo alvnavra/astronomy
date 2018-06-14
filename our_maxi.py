@@ -1,32 +1,6 @@
 import params
 import urllib.request
 
-def returnTypes(p_url):
-    html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
-    tr = html.find('<tr>')
-    html_aux = ''
-    i = 0
-    while (tr >= 0):
-        if i==0:
-            ini_tag = tr+len('<tr>')
-            html_aux = html[ini_tag:]
-            fin_tag = html_aux.find('</tr>')+len('</tr>')
-            html_aux = html_aux[fin_tag:]
-            i = i+1
-        else:
-            ini_tag = tr+len('<tr>')
-            fin_tag = ini_tag+html_aux.find('</tr>')+len('</tr>')
-            lna_aux = html_aux[ini_tag:fin_tag]
-            ini_tag = lna_aux.find('</th>')+len('</th>')
-            l_lna = lna_aux[ini_tag:].split('</td>')
-
-            source_ini = l_lna[0].find('">')+2
-            source_fin = l_lna[0][source_ini:].find('</a>')
-            source = (l_lna[0][source_ini:source_ini+source_fin]).strip()
-
-            type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
-        tr = html_aux.find('<tr>')
-
 class Maxi:
     __url = params.url
     __db = params.db
@@ -39,6 +13,58 @@ class Maxi:
 
     def getUrl(self):
         return self.__url
+
+    def returnTypes(self, p_url):
+        sources = self.__db['sources']
+        html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
+        tr = html.find('<tr>')
+        html_aux = ''
+        fin_tag = 0
+        i = 0
+        while (tr >= 0):
+            if i==0:
+                ini_tag = tr+len('<tr>')
+                html_aux = html[ini_tag:]
+                fin_tag = html_aux.find('</tr>')+len('</tr>')
+                html_aux = html_aux[fin_tag:]
+                i = i+1
+            else:
+                ini_tag = tr+len('<tr>')
+                fin_tag = ini_tag+html_aux.find('</tr>')+len('</tr>')
+                lna_aux = html_aux[ini_tag:fin_tag]
+                ini_tag = lna_aux.find('</th>')+len('</th>')
+                l_lna = lna_aux[ini_tag:].split('</td>')
+
+                source_ini = l_lna[0].find('">')+2
+                source_fin = l_lna[0][source_ini:].find('</a>')
+                source = (l_lna[0][source_ini:source_ini+source_fin]).strip()
+                print(source)
+                if source == 'MRC 0625-536':
+                    print(source)
+
+                type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
+                if source.find(',') < 0:
+                    query = {'tool_name':'maxi','source':source}
+                    dict_source = sources.find_one(query)
+                    dict_source['src_type'] = type_src
+                    sources.update(query,dict_source,upsert=True)
+                else:
+                    l_names = source.split(',')
+                    for  name in l_names:
+                        query = {'tool_name':'maxi','source':name}
+                        dict_source = sources.find_one(query)
+                        if len(dict_source) > 0:
+                            dict_source['src_type'] = type_src
+                            sources.update(query,dict_source,upsert=True)
+                            break
+
+
+
+                    
+                html_aux = html_aux.replace(lna_aux,'')
+            tr = html_aux.find('<tr>')
+            
+        
 
     def readSources(self, p_url, tool_name):
         html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
@@ -88,7 +114,7 @@ class Maxi:
         parameters = self.__db['parameters']
         sources_types_url = parameters.find_one({'_id':p_tool_name},{'src-type-url':1,'_id':0})['src-type-url']
         for url in sources_types_url:
-            type_info = returnTypes(url)
+            self.returnTypes(url)
 
 
         '''sources = self.__db['sources']        

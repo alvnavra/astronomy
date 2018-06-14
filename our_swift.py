@@ -73,7 +73,7 @@ class Swift:
             dict_row = {'tool_name':tool_name}
             for c in cols:
                 if isinstance(row[c],(str)):
-                    dict_row[data.names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).upper()
+                    dict_row[data.names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','').upper()
                 else:
                     dict_row[data.names[c].lower()] = row[c].item()
             print (dict_row)
@@ -92,3 +92,11 @@ class Swift:
 
 
         
+if __name__ == '__main__':
+    tool_name = 'swift'
+    myFits = Swift(tool_name)
+    url = myFits.getUrl()
+    l_name = url.split('/')
+    name = l_name[-1]
+    myFits.downloadFits(url,name)
+    myFits.readFits(tool_name, name)
