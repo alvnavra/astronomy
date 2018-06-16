@@ -39,22 +39,45 @@ class Maxi:
                 source_fin = l_lna[0][source_ini:].find('</a>')
                 source = (l_lna[0][source_ini:source_ini+source_fin]).strip()
                 print(source)
-                if source == 'MRC 0625-536':
+                if source == 'QSO B2356-309':
                     print(source)
+
+                str_ra_obj = l_lna[1].replace('<td align=right>','').strip()
+                str_dec_obj = l_lna[2].replace('<td align=right>','').strip()
+                str_lii_obj = l_lna[3].replace('<td align=right>','').strip()
+                str_bii_obj = l_lna[4].replace('<td align=right>','').strip()
+
 
                 type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
                 if source.find(',') < 0:
                     query = {'tool_name':'maxi','source':source}
                     dict_source = sources.find_one(query)
+                    if dict_source == None:
+                        dict_source = {}
+                        dict_source['source'] = source
+                        dict_source['tool_name'] = 'maxi'
+                                          
                     dict_source['src_type'] = type_src
+                    dict_source['ra_obj'] = float(str_ra_obj)
+                    dict_source['dec_obj'] = float(str_dec_obj)
+                    dict_source['LII'] = float(str_lii_obj)
+                    dict_source['BII'] = float(str_bii_obj)
                     sources.update(query,dict_source,upsert=True)
                 else:
                     l_names = source.split(',')
                     for  name in l_names:
                         query = {'tool_name':'maxi','source':name}
                         dict_source = sources.find_one(query)
+                        if dict_source == None:
+                            dict_source = {}
+                            dict_source['source'] = name
+                            dict_source['tool_name'] = 'maxi'
                         if len(dict_source) > 0:
                             dict_source['src_type'] = type_src
+                            dict_source['ra_obj'] = float(str_ra_obj)  
+                            dict_source['dec_obj'] = float(str_dec_obj)    
+                            dict_source['LII'] = float(str_lii_obj)  
+                            dict_source['BII'] = float(str_bii_obj)                    
                             sources.update(query,dict_source,upsert=True)
                             break
 
