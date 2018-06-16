@@ -4,7 +4,7 @@
 Install Mongo
 ----------
 sudo apt install mongodb # Mongo Server<br/>
-sudo apt install mongodb-client #Mongo Client
+sudo apt install mongodb-client #Mongo Client<br/>
 sudo apt install mongo-tools #Ubuntu's Mongo Tools (mongodump, mongorestore)
 
 MongoDump & Mongo Restore
