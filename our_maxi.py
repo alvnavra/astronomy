@@ -35,12 +35,16 @@ class Maxi:
                 ini_tag = lna_aux.find('</th>')+len('</th>')
                 l_lna = lna_aux[ini_tag:].split('</td>')
 
+                if len(l_lna) == 1 and l_lna[0] == '':
+                    tr = -1
+                    continue
+
                 source_ini = l_lna[0].find('">')+2
                 source_fin = l_lna[0][source_ini:].find('</a>')
                 source = (l_lna[0][source_ini:source_ini+source_fin]).strip()
                 print(source)
-                if source == 'QSO B2356-309':
-                    print(source)
+                '''if source == 'QSO B2356-309':
+                    print(source)'''
 
                 str_ra_obj = l_lna[1].replace('<td align=right>','').strip()
                 str_dec_obj = l_lna[2].replace('<td align=right>','').strip()
