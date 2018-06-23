@@ -64,6 +64,7 @@ class Swift:
         hdul = fits.open(file)
         data = hdul[1].data
         names = data.names
+        names[0] = 'SOURCE'
         srcs = self.__db['sources']
 
         rows = range(0,len(data))        
@@ -73,11 +74,11 @@ class Swift:
             dict_row = {'tool_name':tool_name}
             for c in cols:
                 if isinstance(row[c],(str)):
-                    dict_row[data.names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','').upper()
+                    dict_row[names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','').upper()
                 else:
-                    dict_row[data.names[c].lower()] = row[c].item()
+                    dict_row[names[c].lower()] = row[c].item()
             print (dict_row)
-            srcs.update({'name':dict_row['name']},dict_row,upsert=True)
+            srcs.update({'source':dict_row['source']},dict_row,upsert=True)
 
 
     def readSources(self, tool_name):
