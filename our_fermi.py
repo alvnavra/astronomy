@@ -75,7 +75,7 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
             dict_source['url_maxi'] = url_maxi
             dict_source['url_simbad'] = url_simb
             dict_source['simbad_id'] = name_simb
-            dict_source['source_type'] = findSimbd(name_simb)
+            dict_source['src_type'] = findSimbd(name_simb)
             dict_source['tool_name']=p_tool_name
             p_collection.update({'tool_name':p_tool_name,'source':tag_source},dict_source,upsert=True)
             tab = tab[tr:]
@@ -90,7 +90,7 @@ class Fermi:
     def __init__(self,id):
         fits = self.__db['parameters']
         rdo = fits.find_one(id)
-        self.__url = rdo['url']
+        self.__url = rdo['urls'][0]['sources']
 
     def getUrl(self):
         return self.__url

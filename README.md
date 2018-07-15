@@ -12,6 +12,10 @@ MongoDump & Mongo Restore
 mongodump -h ds119060.mlab.com:19060 -d astronomy -u <user> -p <path> -o /tmp/dumps
 mongorestore --db astronomy --dir astronomy/
 
+MongoRestore of one Collection
+------------------------------
+mongorestore --host <host destination of restore> --port <port> --username <user> --password <temporal> --db <database> --collection <collection to restore> <location of dumps> ex: ./dumps/mydb/mycollection.bson
+
 Start Mongo Manually
 -------------
 cd /etc

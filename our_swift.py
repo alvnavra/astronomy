@@ -13,7 +13,7 @@ class Swift:
     def __init__(self,id):
         fits = self.__db['parameters']
         rdo = fits.find_one(id)
-        self.__url = rdo['url']
+        self.__url = rdo['urls'][0]['catalog_fits']
 
     def getUrl(self):
         return self.__url
@@ -66,6 +66,7 @@ class Swift:
         names = data.names
         names[0] = 'SOURCE'
         srcs = self.__db['sources']
+        url_base_lc = 'https://swift.gsfc.nasa.gov/results/transients/weak/'
 
         rows = range(0,len(data))        
         for r in rows:
@@ -74,16 +75,22 @@ class Swift:
             dict_row = {'tool_name':tool_name}
             for c in cols:
                 if isinstance(row[c],(str)):
-                    dict_row[names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','').upper()
+                    dict_row[names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','')
                 else:
                     dict_row[names[c].lower()] = row[c].item()
             print (dict_row)
+            url_lc = url_base_lc+dict_row['source'].replace(' ','').replace('+','p')
+            dict_lc_urls = {'daily':url_lc+'.lc.txt','orbital':url_lc+'.orbit.lc.txt'}
+            dict_row['ligth_curves'] = dict_lc_urls
             srcs.update({'source':dict_row['source']},dict_row,upsert=True)
 
 
     def readSources(self, tool_name):
         params = self.__db['parameters'].find_one({'_id':tool_name})
-        url_swift = params['url_sources']
+        url_swift = params['urls'][0]['sources']
+        '''TODO: La parte de encontrar las urls funciona. Comprobar la parte de tratarlas, que es
+           la que viene a continuación'''
+        exit(0)
         srcs = self.__db['sources'].find_one({'tool_name':tool_name},{'sources':1,'_id':0})['sources']
         for src in srcs:
             modified_src = src.replace(' ','').replace('+','p')
@@ -101,3 +108,5 @@ if __name__ == '__main__':
     name = l_name[-1]
     myFits.downloadFits(url,name)
     myFits.readFits(tool_name, name)
+    #myFits.readSources(tool_name)
+

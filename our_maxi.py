@@ -9,7 +9,7 @@ class Maxi:
     def __init__(self,id):
         db = self.__db['parameters']
         rdo = db.find_one(id)
-        self.__url = rdo['url']
+        self.__url = rdo['urls'][0]['sources_list']
 
     def getUrl(self):
         return self.__url
@@ -55,6 +55,7 @@ class Maxi:
                 type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
                 if source.find(',') < 0:
                     query = {'tool_name':'maxi','source':source}
+                    url_base_lc = 'http://maxi.riken.jp/star_data/'
                     dict_source = sources.find_one(query)
                     if dict_source == None:
                         dict_source = {}
@@ -66,6 +67,10 @@ class Maxi:
                     dict_source['dec_obj'] = float(str_dec_obj)
                     dict_source['LII'] = float(str_lii_obj)
                     dict_source['BII'] = float(str_bii_obj)
+                    url_lc = url_base_lc+source+'/'+source
+                    dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
+                    dict_source['ligth_curves'] = dict_lc_urls
+
                     sources.update(query,dict_source,upsert=True)
                 else:
                     l_names = source.split(',')
@@ -76,12 +81,17 @@ class Maxi:
                             dict_source = {}
                             dict_source['source'] = name
                             dict_source['tool_name'] = 'maxi'
+                            url_base_lc = 'http://maxi.riken.jp/star_data/'
                         if len(dict_source) > 0:
                             dict_source['src_type'] = type_src
                             dict_source['ra_obj'] = float(str_ra_obj)  
                             dict_source['dec_obj'] = float(str_dec_obj)    
                             dict_source['LII'] = float(str_lii_obj)  
-                            dict_source['BII'] = float(str_bii_obj)                    
+                            dict_source['BII'] = float(str_bii_obj)  
+                            url_lc = url_base_lc+source+'/'+source
+                            dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
+                            dict_source['ligth_curves'] = dict_lc_urls
+                  
                             sources.update(query,dict_source,upsert=True)
                             break
 
@@ -139,7 +149,7 @@ class Maxi:
 
     def readTypes(self, p_tool_name):
         parameters = self.__db['parameters']
-        sources_types_url = parameters.find_one({'_id':p_tool_name},{'src-type-url':1,'_id':0})['src-type-url']
+        sources_types_url = parameters.find_one({'_id':p_tool_name},{'urls':1,'_id':0})['urls'][0]['sources_info']
         for url in sources_types_url:
             self.returnTypes(url)
 
@@ -151,3 +161,4 @@ class Maxi:
 if __name__ == '__main__':
     maxi = Maxi('maxi')
     maxi.readTypes('maxi')
+    maxi.readSources('http://maxi.riken.jp/star_data/','maxi')
