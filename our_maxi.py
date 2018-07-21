@@ -46,6 +46,9 @@ class Maxi:
                 '''if source == 'QSO B2356-309':
                     print(source)'''
 
+                ini_url = l_lna[0].find('"')
+                end_url = l_lna[0].find('/')
+                name_lc = l_lna[0][ini_url:end_url].replace("'",'').replace('"','')
                 str_ra_obj = l_lna[1].replace('<td align=right>','').strip()
                 str_dec_obj = l_lna[2].replace('<td align=right>','').strip()
                 str_lii_obj = l_lna[3].replace('<td align=right>','').strip()
@@ -67,7 +70,7 @@ class Maxi:
                     dict_source['dec_obj'] = float(str_dec_obj)
                     dict_source['LII'] = float(str_lii_obj)
                     dict_source['BII'] = float(str_bii_obj)
-                    url_lc = url_base_lc+source+'/'+source
+                    url_lc = url_base_lc+name_lc+'/'+name_lc
                     dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                     dict_source['ligth_curves'] = dict_lc_urls
 
@@ -161,4 +164,3 @@ class Maxi:
 if __name__ == '__main__':
     maxi = Maxi('maxi')
     maxi.readTypes('maxi')
-    maxi.readSources('http://maxi.riken.jp/star_data/','maxi')
