@@ -91,7 +91,7 @@ class Maxi:
                             dict_source['dec_obj'] = float(str_dec_obj)    
                             dict_source['LII'] = float(str_lii_obj)  
                             dict_source['BII'] = float(str_bii_obj)  
-                            url_lc = url_base_lc+source+'/'+source
+                            url_lc = url_base_lc+name_lc+'/'+name_lc
                             dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                             dict_source['ligth_curves'] = dict_lc_urls
                   

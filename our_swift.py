@@ -108,5 +108,4 @@ if __name__ == '__main__':
     name = l_name[-1]
     myFits.downloadFits(url,name)
     myFits.readFits(tool_name, name)
-    #myFits.readSources(tool_name)
 
