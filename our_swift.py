@@ -75,14 +75,18 @@ class Swift:
             dict_row = {'tool_name':tool_name}
             for c in cols:
                 if isinstance(row[c],(str)):
-                    dict_row[names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','')
+                    if names[c].lower() == 'source' and \
+                    (row[c].replace('\x00','').replace('NULL','')).replace('?','') == '0FGL J1834.4-0841':
+                        dict_row['source'] = 'Swift J1834.9-0846'
+                    else:
+                        dict_row[names[c].lower()] = (row[c].replace('\x00','').replace('NULL','')).replace('?','')
                 else:
                     dict_row[names[c].lower()] = row[c].item()
             print (dict_row)
             url_lc = url_base_lc+dict_row['source'].replace(' ','').replace('+','p')
             dict_lc_urls = {'daily':url_lc+'.lc.txt','orbital':url_lc+'.orbit.lc.txt'}
             dict_row['ligth_curves'] = dict_lc_urls
-            srcs.update({'source':dict_row['source']},dict_row,upsert=True)
+            srcs.update({'tool_name':tool_name,'source':dict_row['source']},dict_row,upsert=True)
 
 
     def readSources(self, tool_name):
