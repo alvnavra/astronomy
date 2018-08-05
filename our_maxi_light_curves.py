@@ -5,10 +5,13 @@ import threading
 import time
 import sys
 import pandas as pd
-from bokeh.plotting import figure
-from bokeh.io import show, output_file
-from io import StringIO
+from bokeh.plotting import figure, save
+from bokeh.io import output_file
 import traceback
+from os import remove
+import numpy as np
+import BayesianBlocks
+from datetime import datetime
 
 class MaxiLightCurves:
     
@@ -38,22 +41,46 @@ class MaxiLightCurves:
             print (filename)
             df = pd.read_csv(filename, sep='\s+', header=None)
             new1 = df[(df > 0).all(1)]
+
+            dict_data = {}
+            dict_data['t'] = df[0]
+            dict_data['x'] = df[1]
+            dict_data['err'] = df[2]
+
+            myBys = BayesianBlocks.BayesBlocks(dict_data)
+            blk = myBys.blocks
+            chp = blk['change_points']
+            lchp = chp.tolist()
+            change_points = p_source['change_points']
+            latest_change_point = {}
+            ptg_variation = 0
+            if change_points == None:
+                change_points = []
+            else:
+                latest_change_point =  {'date':datetime.now(),'change_points':len(lchp)}
+                previous_change_point = change_points[len(change_points)-1]
+                if previous_change_point != latest_change_point['change_points']:
+                    ptg_variation = latest_change_point['change_points']
+
+
+
+            '''p_source['change_points'].change_points
+            if len(p_source['change_points']) > 1:'''
+
+
             p = figure(x_axis_label='Hardness ratio', y_axis_label='FLUX')
             p.circle(new1[5]/(new1[3]), new1[5]+new1[3], size=4)
-            filename_html = p_source['source'].replace(' ','_')+'.html'
-            print(filename_html)
-            fich = output_file(fielname_html)            
-            p.show()
-
-            
-
-
+            filename_html = filename.replace('txt','html')
+            output_file(filename_html)
+            save(p)
+            p_source['bokeh'] = open(filename_html,'rt').read()
+            self.__db['sources'].save(p_source)
         except:
-
+            print(traceback.format_exc())
             self.__errors.append(name)
 
     def __init__(self,id):
-        self.__sources = self.__db['sources'].find({'tool_name':id}).limit(3)
+        self.__sources = self.__db['sources'].find({'tool_name':id,'source':'GX 339-4'})
 
     def getAllSources(self):
         return self.__sources
