@@ -12,6 +12,7 @@ from os import remove
 import numpy as np
 import BayesianBlocks
 from datetime import datetime
+from matplotlib import pyplot as plt
 
 class MaxiLightCurves:
     
@@ -39,10 +40,12 @@ class MaxiLightCurves:
             print(name)
             urlretrieve(url,filename=filename)
             print (filename)
-            df = pd.read_csv(filename, sep='\s+', header=None)
+            buffer = open(filename, 'rt').read()
+            p_source['lc'] = buffer
+            df = pd.read_csv(filename, sep='\s+', header=None)            
             new1 = df[(df > 0).all(1)]
 
-            dict_data = {}
+            '''dict_data = {}
             dict_data['t'] = df[0]
             dict_data['x'] = df[1]
             dict_data['err'] = df[2]
@@ -52,6 +55,8 @@ class MaxiLightCurves:
             chp = blk['change_points']
             lchp = chp.tolist()
             change_points = p_source['change_points']
+            x_blks = blk['x_blocks'].tolist()
+
             latest_change_point = {}
             ptg_variation = 0
             if change_points == None:
@@ -60,7 +65,7 @@ class MaxiLightCurves:
                 latest_change_point =  {'date':datetime.now(),'change_points':len(lchp)}
                 previous_change_point = change_points[len(change_points)-1]
                 if previous_change_point != latest_change_point['change_points']:
-                    ptg_variation = latest_change_point['change_points']
+                    ptg_variation = latest_change_point['change_points']'''
 
 
 
