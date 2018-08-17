@@ -36,7 +36,7 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blk['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blk['x_blocks'], blk['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        #plt.plot(t_blocks, x_blocks)        
+        plt.plot(t_blocks, x_blocks)        
         #plt.show()
 
     def getOutbursts(self):
@@ -44,7 +44,12 @@ class OurBayesianBlocks:
         median = self.__lc.median()[1]
         sigma = self.__lc.std()[1]
         FWHM = 2 * np.sqrt(2*np.log(2))
-        umbral = median + (sigma*FWHM)
+        umbral = float(median + (sigma*FWHM))
+
+        print("median --> %f" %median)
+        print("sigma --> %f" %sigma)
+        print("FWHTM --> %f" %FWHM)
+
 
         blks = self.__blks
         outburst = []
@@ -54,22 +59,33 @@ class OurBayesianBlocks:
         for xb in x_blks:
             if xb > umbral:
                 idx = x_blks.index(xb)
-                if x_blks[idx+1] > umbral and x_blks[idx+2] > umbral and (append_outburst == True or append_outburst == None):
+                xb1 = x_blks[idx+1]
+                xb2 = x_blks[idx+2]
+                if xb1 > xb and xb2 > umbral and (append_outburst == True or append_outburst == None):
+                    print("idx: %d" %idx)
+                    print ("Outbust Found")
                     outburst.append(1)
                     append_outburst = False
-                else:
-                    if append_outburst == False:
-                        append_outburst = True
+            if xb < umbral:
+                append_outburst = True
 
         print("Number of Outbursts: "+str(len(outburst)))
+        print("Threshold: "+str(umbral))
 
         
+
+        rng = range(0,len(self.__lc[0]))
+        lst = []
+        for r in rng:
+            lst.append(umbral)
+
+        df_umbral = pd.DataFrame(data=lst)
 
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
         plt.plot(t_blocks, x_blocks) 
-        plt.plot(x=self.__lc[0],y=umbral)
+        plt.plot(self.__lc[0],df_umbral)
         plt.show()
 
 
