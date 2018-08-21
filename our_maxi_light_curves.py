@@ -85,7 +85,7 @@ class MaxiLightCurves:
             self.__errors.append(name)
 
     def __init__(self,id):
-        self.__sources = self.__db['sources'].find({'tool_name':id,'source':'LS I +61 303 with Swift J0243.6+6124'})
+        self.__sources = self.__db['sources'].find({'tool_name':id,'source':'GS 0834-430 with GS 0836-429'})
 
     def getAllSources(self):
         return self.__sources

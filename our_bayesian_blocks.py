@@ -42,8 +42,8 @@ class OurBayesianBlocks:
     def getOutbursts(self):
 
         median = self.__lc.median()[1]
-        sigma = self.__lc.std()[1]
-        FWHM = 2 * np.sqrt(2*np.log(2))
+        sigma = self.__lc.mad()[1]
+        FWHM = 2 * np.sqrt(2*np.log(2))*sigma
         umbral = float(median + (sigma*FWHM))
 
         print("median --> %f" %median)
@@ -57,17 +57,31 @@ class OurBayesianBlocks:
         x_blks = blks['x_blocks'].tolist()
         append_outburst = None
         for xb in x_blks:
-            if xb > umbral:
-                idx = x_blks.index(xb)
-                xb1 = x_blks[idx+1]
-                xb2 = x_blks[idx+2]
-                if xb1 > xb and xb2 > umbral and (append_outburst == True or append_outburst == None):
-                    print("idx: %d" %idx)
-                    print ("Outbust Found")
-                    outburst.append(1)
-                    append_outburst = False
-            if xb < umbral:
-                append_outburst = True
+            try:
+                x_ini_blk1 = 0
+                x_fin_blkn = 0
+                if xb > umbral:
+                    idx = x_blks.index(xb)
+                    xb1 = x_blks[idx+1]
+                    xb2 = x_blks[idx+2]
+                    if xb1 > xb and xb2 > umbral and (append_outburst == True or append_outburst == None):                        
+                        if (blks['bins'][idx][1]-blks['bins'][idx][0]>2 and blks['bins'][idx+1][1]-blks['bins'][idx+1][0]>2 and blks['bins'][idx+2][1]-blks['bins'][idx+2][0] > 2) :
+                            x_ini_blk1 = blks['bins'][idx][0]
+                            print("idx: %d" %idx)
+                            print ("Outbust Found")
+                            print(blks['bins'][idx][0])
+                            outburst.append(1)
+                            append_outburst = False
+                if xb < umbral:
+                    idx = x_blks.index(xb)
+                    x_fin_blkn = blks['bin']['idx'][1]
+                    activity_weigth = x_fin_blkn - x_ini_blk1
+                    if activity_weigth < 7:
+                        outburst.pop(-1)
+                    append_outburst = True
+            except:
+                pass
+
 
         print("Number of Outbursts: "+str(len(outburst)))
         print("Threshold: "+str(umbral))
@@ -92,5 +106,5 @@ class OurBayesianBlocks:
 
 
 if __name__ == '__main__':
-    myBlk = OurBayesianBlocks('maxi','GX 339-4')
+    myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
     myBlk.getOutbursts()
