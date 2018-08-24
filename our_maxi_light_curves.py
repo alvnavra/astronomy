@@ -45,34 +45,7 @@ class MaxiLightCurves:
             df = pd.read_csv(filename, sep='\s+', header=None)            
             new1 = df[(df > 0).all(1)]
 
-            '''dict_data = {}
-            dict_data['t'] = df[0]
-            dict_data['x'] = df[1]
-            dict_data['err'] = df[2]
-
-            myBys = BayesianBlocks.BayesBlocks(dict_data)
-            blk = myBys.blocks
-            chp = blk['change_points']
-            lchp = chp.tolist()
-            change_points = p_source['change_points']
-            x_blks = blk['x_blocks'].tolist()
-
-            latest_change_point = {}
-            ptg_variation = 0
-            if change_points == None:
-                change_points = []
-            else:
-                latest_change_point =  {'date':datetime.now(),'change_points':len(lchp)}
-                previous_change_point = change_points[len(change_points)-1]
-                if previous_change_point != latest_change_point['change_points']:
-                    ptg_variation = latest_change_point['change_points']'''
-
-
-
-            '''p_source['change_points'].change_points
-            if len(p_source['change_points']) > 1:'''
-
-
+        
             p = figure(x_axis_label='Hardness ratio', y_axis_label='FLUX')
             p.circle(new1[5]/(new1[3]), new1[5]+new1[3], size=4)
             filename_html = filename.replace('txt','html')
@@ -85,7 +58,7 @@ class MaxiLightCurves:
             self.__errors.append(name)
 
     def __init__(self,id):
-        self.__sources = self.__db['sources'].find({'tool_name':id,'source':'GS 0834-430 with GS 0836-429'})
+        self.__sources = self.__db['sources'].find({'tool_name':id},no_cursor_timeout=True)
 
     def getAllSources(self):
         return self.__sources

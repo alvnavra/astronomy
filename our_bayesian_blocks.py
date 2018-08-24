@@ -2,7 +2,7 @@ import params
 import pandas as pd
 import numpy as np
 import BayesianBlocks
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from io import StringIO
 
 
@@ -36,7 +36,7 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blk['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blk['x_blocks'], blk['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        plt.plot(t_blocks, x_blocks)        
+        #plt.plot(t_blocks, x_blocks)        
         #plt.show()
 
     def getOutbursts(self):
@@ -55,32 +55,50 @@ class OurBayesianBlocks:
         outburst = []
 
         x_blks = blks['x_blocks'].tolist()
+        activity_blocks = []
         append_outburst = None
+        idx = 0
         for xb in x_blks:
-            try:
-                x_ini_blk1 = 0
-                x_fin_blkn = 0
-                if xb > umbral:
-                    idx = x_blks.index(xb)
-                    xb1 = x_blks[idx+1]
-                    xb2 = x_blks[idx+2]
-                    if xb1 > xb and xb2 > umbral and (append_outburst == True or append_outburst == None):                        
-                        if (blks['bins'][idx][1]-blks['bins'][idx][0]>2 and blks['bins'][idx+1][1]-blks['bins'][idx+1][0]>2 and blks['bins'][idx+2][1]-blks['bins'][idx+2][0] > 2) :
-                            x_ini_blk1 = blks['bins'][idx][0]
-                            print("idx: %d" %idx)
-                            print ("Outbust Found")
-                            print(blks['bins'][idx][0])
-                            outburst.append(1)
-                            append_outburst = False
-                if xb < umbral:
-                    idx = x_blks.index(xb)
-                    x_fin_blkn = blks['bin']['idx'][1]
-                    activity_weigth = x_fin_blkn - x_ini_blk1
-                    if activity_weigth < 7:
-                        outburst.pop(-1)
-                    append_outburst = True
-            except:
-                pass
+            x_ini_blk1 = 0
+            x_fin_blkn = 0
+            if xb >= umbral and (append_outburst == True or append_outburst == None):
+                idx = x_blks.index(xb)
+                activity_blocks.append(blks['bins'][idx])
+                append_outburst = True
+                '''idx = x_blks.index(xb)
+                xb1 = x_blks[idx+1]
+                xb2 = x_blks[idx+2]
+                if xb1 > xb and xb2 >= umbral and (append_outburst == True or append_outburst == None):                        
+                    if (blks['bins'][idx][1]-blks['bins'][idx][0]>2 and blks['bins'][idx+1][1]-blks['bins'][idx+1][0]>2 and blks['bins'][idx+2][1]-blks['bins'][idx+2][0] > 2) :
+                        x_ini_blk1 = blks['bins'][idx][0]
+                        print("idx: %d" %idx)
+                        print ("Outbust Found")
+                        print(blks['bins'][idx][0])
+                        outburst.append(1)
+                        append_outburst = False'''
+            if xb < umbral and append_outburst == True:
+                inc_t = 1
+                all_ok = True
+                activity_idx = 0
+                if len(activity_blocks) >= 3:
+                    while all_ok and activity_idx < len(activity_blocks):
+                        print ('weight: '+str(activity_blocks[activity_idx][1]-activity_blocks[activity_idx][0]))
+                        if activity_blocks[activity_idx][1] - activity_blocks[activity_idx][0] < inc_t:
+                            all_ok = False
+                            print("=============================")
+                        else:
+                            activity_idx = activity_idx+1
+                    
+                    if all_ok:
+                        outburst.append(1)
+                        #print ("Outbust Found")
+                        #print (activity_blocks[0]['bins'][0])
+                    activity_blocks = []
+                else:
+                    activity_blocks = []
+
+
+
 
 
         print("Number of Outbursts: "+str(len(outburst)))
@@ -98,13 +116,21 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        plt.plot(t_blocks, x_blocks) 
-        plt.plot(self.__lc[0],df_umbral)
-        plt.show()
+        #plt.plot(t_blocks, x_blocks) 
+        #plt.plot(self.__lc[0],df_umbral)
+        #plt.show()
 
 
 
 
 if __name__ == '__main__':
-    myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
+    myBlk = OurBayesianBlocks('maxi','Aql X-1')
     myBlk.getOutbursts()
+
+
+'''idx = x_blks.index(xb)
+x_fin_blkn = blks['bin']['idx'][1]
+activity_weigth = x_fin_blkn - x_ini_blk1
+if activity_weigth < 5:
+    outburst.pop(-1)
+append_outburst = True'''
