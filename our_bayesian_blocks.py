@@ -2,7 +2,7 @@ import params
 import pandas as pd
 import numpy as np
 import BayesianBlocks
-#from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 from io import StringIO
 
 
@@ -65,17 +65,6 @@ class OurBayesianBlocks:
                 idx = x_blks.index(xb)
                 activity_blocks.append(blks['bins'][idx])
                 append_outburst = True
-                '''idx = x_blks.index(xb)
-                xb1 = x_blks[idx+1]
-                xb2 = x_blks[idx+2]
-                if xb1 > xb and xb2 >= umbral and (append_outburst == True or append_outburst == None):                        
-                    if (blks['bins'][idx][1]-blks['bins'][idx][0]>2 and blks['bins'][idx+1][1]-blks['bins'][idx+1][0]>2 and blks['bins'][idx+2][1]-blks['bins'][idx+2][0] > 2) :
-                        x_ini_blk1 = blks['bins'][idx][0]
-                        print("idx: %d" %idx)
-                        print ("Outbust Found")
-                        print(blks['bins'][idx][0])
-                        outburst.append(1)
-                        append_outburst = False'''
             if xb < umbral and append_outburst == True:
                 inc_t = 1
                 all_ok = True
@@ -91,8 +80,8 @@ class OurBayesianBlocks:
                     
                     if all_ok:
                         outburst.append(1)
-                        #print ("Outbust Found")
-                        #print (activity_blocks[0]['bins'][0])
+                        print ("Outbust Found")
+                        print (activity_blocks[0][0])
                     activity_blocks = []
                 else:
                     activity_blocks = []
@@ -116,9 +105,9 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        #plt.plot(t_blocks, x_blocks) 
-        #plt.plot(self.__lc[0],df_umbral)
-        #plt.show()
+        plt.plot(t_blocks, x_blocks) 
+        plt.plot(self.__lc[0],df_umbral)
+        plt.show()
 
 
 
@@ -126,11 +115,3 @@ class OurBayesianBlocks:
 if __name__ == '__main__':
     myBlk = OurBayesianBlocks('maxi','Aql X-1')
     myBlk.getOutbursts()
-
-
-'''idx = x_blks.index(xb)
-x_fin_blkn = blks['bin']['idx'][1]
-activity_weigth = x_fin_blkn - x_ini_blk1
-if activity_weigth < 5:
-    outburst.pop(-1)
-append_outburst = True'''
