@@ -1,12 +1,13 @@
 import params
 import pandas as pd
 import numpy as np
-import BayesianBlocks
+from astropy.stats import bayesian_blocks as bays
+from astropy.stats import histogram as histo
 from matplotlib import pyplot as plt
 from io import StringIO
 
 
-class OurBayesianBlocks:
+class AstropyBayesianBlocks:
 
     __url = params.url
     __db = params.db
@@ -26,7 +27,16 @@ class OurBayesianBlocks:
         dict_data['x'] = df[1]
         dict_data['err'] = df[2]
 
-        myBys = BayesianBlocks.BayesBlocks(dict_data)
+        #myBys = BayesianBlocks.BayesBlocks(dict_data)
+        myBys = bays(dict_data['t'],dict_data['x'],dict_data['err'],fitness='measures',p0=0.05)
+        plt.hist(df[0],bins=myBys)
+        plt.show()
+        hist, bin_edges = histo(myBys)
+        hist = [0] + hist.tolist()
+        bin_edges = bin_edges.tolist()
+        plt.plot(bin_edges, hist)
+        plt.show()
+        exit(0)
         blk = myBys.blocks
         self.__blks = blk
         chp = blk['change_points']
@@ -109,14 +119,14 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        plt.plot(t_blocks, x_blocks) 
-        plt.plot(self.__lc[0],df_umbral)
-        plt.show()
+        #plt.plot(t_blocks, x_blocks) 
+        #plt.plot(self.__lc[0],df_umbral)
+        #plt.show()
 
 
 
 
 if __name__ == '__main__':
     #myBlk = OurBayesianBlocks('maxi','Aql X-1')
-    myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
-    myBlk.getOutbursts()
+    myBlk = AstropyBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
+    #myBlk.getOutbursts()

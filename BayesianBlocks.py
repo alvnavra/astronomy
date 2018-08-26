@@ -24,7 +24,7 @@ class BayesBlocks (object):
 
     # Default options dictionary
     options = {
-        'p0': 0.05,  # false - positive rate
+        'p0': 0.01,  # false - positive rate
         'iterate': False,  # iterations in false - positive rate
         'max_iter': 20,  # maximum number of iterations
         'relax': 1  # relaxation factor for the iterations in p0
