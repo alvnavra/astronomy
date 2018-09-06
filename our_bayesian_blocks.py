@@ -2,7 +2,7 @@ import params
 import pandas as pd
 import numpy as np
 import BayesianBlocks
-#from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 from io import StringIO
 
 
@@ -59,12 +59,12 @@ class OurBayesianBlocks:
 
         append_outburst = None
         idx = 0
-        acceptance_pctge = 30
-        min_width = 20
+        acceptance_pctge = 25
+        min_width = 7
 
         for xb in x_blks:
-            if xb >= umbral and (append_outburst == True or append_outburst == None):
-                idx = x_blks.index(xb)
+            idx = x_blks.index(xb)
+            if xb >= umbral and (append_outburst == True or append_outburst == None):                
                 x_blk_ant = x_blks[idx-1]
                 pctge = (x_blk_ant/xb)*100
                 activity_blocks.append(blks['bins'][idx])
@@ -84,8 +84,9 @@ class OurBayesianBlocks:
                 else:
                     activity_blocks = []
             if xb < umbral and append_outburst == False:
-                append_outburst = True                    
-                activity_blocks = []
+                if x_blks[idx+1] < umbral and x_blks[idx+2] < umbral:
+                    append_outburst = True                    
+                    activity_blocks = []
 
 
         print("Number of Outbursts: "+str(len(outburst)))
@@ -103,9 +104,9 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        #plt.plot(t_blocks, x_blocks) 
-        #plt.plot(self.__lc[0],df_umbral)
-        #plt.show()
+        plt.plot(t_blocks, x_blocks) 
+        plt.plot(self.__lc[0],df_umbral)
+        plt.show()
 
 
 
@@ -114,4 +115,6 @@ if __name__ == '__main__':
     #myBlk = OurBayesianBlocks('maxi','Aql X-1')
     #myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
     myBlk = OurBayesianBlocks('maxi','4U 1630-472')
+    #myBlk = OurBayesianBlocks('maxi','RX J0520.5-6932')
+    #myBlk = OurBayesianBlocks('maxi','SAX J1747.0-2853')
     myBlk.getOutbursts()
