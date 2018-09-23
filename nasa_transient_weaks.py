@@ -28,4 +28,6 @@ class nTransientWeaks:
         return self.__l_files
 
 
+if __name__ == '__main__':
+    
         

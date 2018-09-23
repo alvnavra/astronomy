@@ -1,9 +1,11 @@
 import params
-import os.path
-from urllib.request import urlretrieve
 import threading
 import time
 import sys
+import requests
+from datetime import datetime
+import re
+
 
 class SwiftLigthCurves:
     
@@ -15,30 +17,36 @@ class SwiftLigthCurves:
     __sources = None
     __errors  = []
 
+    def __return_lc(self, p_text):
+        return re.sub('^ ','',(re.sub('#','\n',(re.sub('\s+',' ',re.sub('\n','#',re.sub('#.*\n','\n', p_text)))).replace('#####',''))).replace('\n ','\n'))
+
     def manage_sources(self, p_source,p_type='daily'):
-        file_path = os.path.abspath('.')
-        name = None        
-        if p_type == 'orbital':
-            name = (p_source['source']+'.orbit.lc.txt').replace(' ','_')
-            url_source = (self.__url_weak+p_source['source']+'.orbit.lc.txt').replace('+','p').replace(' ','')
-            url_source2 = (self.__url+p_source['source']+'.orbit.lc.txt').replace('+','p').replace(' ','')
-        else:
-            name = (p_source['source']+'lc.txt').replace(' ','_')
-            url_source = (self.__url_weak+p_source['source']+'.lc.txt').replace('+','p').replace(' ','')
-            url_source2 = (self.__url+p_source['source']+'.lc.txt').replace('+','p').replace(' ','')
+        print("Tratando "+p_source['source'])
+        url_source = p_source['url_lc_daily']
+        url_source2 = (self.__url+p_source['source']+'.lc.txt').replace('+','p').replace(' ','')
         
-        filename = os.path.join(file_path,'swift_LCs',name)
-        print (filename)
-        try:
-            urlretrieve(url_source,filename=filename)
-        except:
-            try:
-                urlretrieve(url_source2,filename=filename)
-            except:
-                print("error -->"+name)
-                print("error -->"+url_source)
-                print("error -->"+url_source2)
-                self.__errors.append(name)
+        page = requests.get(url_source)
+        make_update = True
+        if page.status_code == 200:
+            texto = self.__return_lc(page.text)
+            p_source['lc'] = texto
+            p_source['last_update'] = datetime.now()            
+        else:
+            page = requests.get(url_source2)
+            if page.status_code == 200:
+                texto = self.__return_lc(page.text)
+                p_source['lc'] = texto
+                p_source['last_update'] = datetime.now()
+            else:
+                make_update = False
+                self.__errors.append(p_source['source'])
+
+        if make_update:
+            print("Grabando "+p_source['source'])
+            self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
+                                         'source':p_source['source']
+                                        }, p_source)
+            print(p_source['source']+' Grabado')
 
     def __init__(self,id):
         self.__sources = self.__db['sources'].find({'tool_name':id},no_cursor_timeout=True)
@@ -47,18 +55,24 @@ class SwiftLigthCurves:
         return self.__sources
 
     def downloadLC(self, p_sources, p_type='daily'):
+        inicio = datetime.now()
         threads = []
-        t = None
-
+        t = None        
         for source in p_sources:
             t = threading.Thread(target=self.manage_sources, args=(source,p_type), daemon=True, name=source['source'])
             threads.append(t)
-            t.start()
-            if len(threads) % 6 == 0:
-                t.join()
+            if len(threads) % 20 == 0:
+                for t1 in threads:
+                    t1.start()
+                for t1 in threads:
+                    t1.join()
                 threads = []
 
-        t.join()
+        for t1 in threads:
+            t1.start()
+        for t1 in threads:
+            t1.join()
+
 
         print ("===========================")
         print ("Erroneos")
@@ -66,13 +80,14 @@ class SwiftLigthCurves:
         for error in self.__errors:
             print (error)
 
+        final = datetime.now()
+        elapsed = final-inicio
+        print('Time elapsed (hh:mm:ss.ms) {}'.format(elapsed))
+
         
 
 if __name__ == '__main__':
     tool_name = 'swift'
     myLc = SwiftLigthCurves(tool_name)
     swiftSources = myLc.getAllSources()
-    if sys.argv[1] in ['-o','--orbital']:
-        myLc.downloadLC(swiftSources,'orbital')
-    else:
-        myLc.downloadLC(swiftSources)
+    myLc.downloadLC(swiftSources)

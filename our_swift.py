@@ -1,14 +1,16 @@
-from urllib.request import urlretrieve
 from astropy.io import fits
 from astropy.table import Table
 import os
 import params
+import pandas as pd
+import urllib.request
 
 class Swift:
     
     __url = params.url
     __db = params.db
     __client = params.client
+    __url_swift = 'https://swift.gsfc.nasa.gov/results/transients/index.html'
     
     def __init__(self,id):
         fits = self.__db['parameters']
@@ -18,6 +20,27 @@ class Swift:
     def getUrl(self):
         return self.__url
 
+    def read_data_from_web(self,p_tool_name):
+        url_base_lc = 'https://swift.gsfc.nasa.gov/results/transients/weak/'
+        srcs = self.__db['sources']
+        tables, = pd.read_html(self.__url_swift,header=0)        
+        i = 1
+        for index, row in tables.iterrows():
+            record = {}
+            record['tool_name'] = p_tool_name
+            record['source']    = row['Source Name']
+            record['ra_obj']    = row['RA J2000 Degs']
+            record['dec_obj']   = row['Dec J2000 Degs']
+            record['alt_name']  = row['Alternate Name']
+            record['src_type']  = row['Source Type']
+            record['url_lc_daily'] = url_base_lc + record['source'].replace(' ','').replace('+','p')+'.lc.txt'    
+            srcs.update({'tool_name':tool_name,'source':record['source']},record,upsert=True)
+            if(i%100==0):
+                print("llevo %d registros" %i)
+            i=i+1
+        print("llevo %d registros" %i)
+
+            
     def downloadFits(self, url, name, path = None):
         if path == None:
             urlretrieve(url,name)
@@ -100,16 +123,10 @@ class Swift:
             modified_src = src.replace(' ','').replace('+','p')
             url_fit = url_swift+modified_src+'.lc.fits'
             self.downloadFits(url_fit, modified_src,os.path.abspath('.')+'/fits')
-            #self.readFitsData(modified_src,os.path.abspath('.')+'/fits')
 
 
         
 if __name__ == '__main__':
     tool_name = 'swift'
     myFits = Swift(tool_name)
-    url = myFits.getUrl()
-    l_name = url.split('/')
-    name = l_name[-1]
-    myFits.downloadFits(url,name)
-    myFits.readFits(tool_name, name)
-
+    myFits.read_data_from_web(tool_name)

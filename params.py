@@ -8,6 +8,6 @@ dict_conns = {
               'harry':{'conn':'mongodb://harry:temporal1@ds119060.mlab.com:19060/astronomy'}
               }
 
-user = 'rafa'
+user = 'localhost'
 client = MongoClient(dict_conns[user]['conn'])
 db = client.astronomy

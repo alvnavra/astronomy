@@ -2,7 +2,7 @@ import params
 import pandas as pd
 import numpy as np
 import BayesianBlocks
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from io import StringIO
 
 
@@ -17,14 +17,24 @@ class OurBayesianBlocks:
     def __init__(self,tool_name,source):
         lc = self.__sources = self.__db['sources'].find({'tool_name':tool_name,'source':source},{'lc':1,'_id':0})
         LC_Data = StringIO(lc[0]['lc'])
-        df = pd.read_csv(LC_Data, sep='\s+', header=None)
-        
-        self.__lc = df
-
         dict_data = {}
-        dict_data['t'] = df[0]
-        dict_data['x'] = df[5] # Banda entre 4 y 10 keV
-        dict_data['err'] = df[6] # Error producido en la banda anterior.
+        
+
+        df = pd.read_csv(LC_Data, sep='\s+', header=None)
+        self.__lc = df
+        idx_time = 0
+        idx_flux = 0
+        idx_err  = 0
+        if tool_name == 'maxi':
+            idx_flux = 5,
+            idx_err = 6
+        elif tool_name == 'swift':
+            idx_flux = 1
+            idx_err = 2
+
+        dict_data['t'] = df[idx_time]
+        dict_data['x'] = df[idx_flux] # Banda entre 4 y 10 keV
+        dict_data['err'] = df[idx_err] # Error producido en la banda anterior.
 
         myBys = BayesianBlocks.BayesBlocks(dict_data)
         blk = myBys.blocks
@@ -104,9 +114,9 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        plt.plot(t_blocks, x_blocks) 
-        plt.plot(self.__lc[0],df_umbral)
-        plt.show()
+        #plt.plot(t_blocks, x_blocks) 
+        #plt.plot(self.__lc[0],df_umbral)
+        #plt.show()
 
 
 
@@ -114,7 +124,8 @@ class OurBayesianBlocks:
 if __name__ == '__main__':
     #myBlk = OurBayesianBlocks('maxi','Aql X-1')
     #myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
-    myBlk = OurBayesianBlocks('maxi','4U 1630-472')
+    #myBlk = OurBayesianBlocks('maxi','4U 1630-472')
     #myBlk = OurBayesianBlocks('maxi','RX J0520.5-6932')
     #myBlk = OurBayesianBlocks('maxi','SAX J1747.0-2853')
+    myBlk = OurBayesianBlocks('swift','QSO B0003-066')
     myBlk.getOutbursts()
