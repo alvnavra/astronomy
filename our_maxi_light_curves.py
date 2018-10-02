@@ -23,6 +23,7 @@ class MaxiLightCurves:
     __errors  = []
 
     def manage_sources(self, p_source,p_type='daily'):
+        print("Tratando "+p_source['source'])
         file_path = os.path.abspath('.')
         name = p_source['source'].replace(" ","_")
         url = None
@@ -50,7 +51,9 @@ class MaxiLightCurves:
                 self.__errors.append(name)
 
             if make_update:
+                print("Grabando "+p_source['source'])
                 self.__db['sources'].save(p_source)
+                print(p_source['source']+' Grabado')
             
         except:
             print(traceback.format_exc())
@@ -67,14 +70,19 @@ class MaxiLightCurves:
         t = None
 
         for source in p_sources:
-            t = threading.Thread(target=self.manage_sources, args=(source,p_type,),daemon=True, name=source['source'])
+            t = threading.Thread(target=self.manage_sources, args=(source,p_type), daemon=True, name=source['source'])
             threads.append(t)
-            t.start()
-            if len(threads) % 6 == 0:
-                t.join()
+            if len(threads) % 20 == 0:
+                for t1 in threads:
+                    t1.start()
+                for t1 in threads:
+                    t1.join()
                 threads = []
 
-        t.join()
+        for t1 in threads:
+            t1.start()
+        for t1 in threads:
+            t1.join()
 
         print ("===========================")
         print ("Erroneos")
