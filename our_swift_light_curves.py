@@ -5,7 +5,7 @@ import sys
 import requests
 from datetime import datetime
 import re
-
+from our_bayesian_blocks import OurBayesianBlocks
 
 class SwiftLigthCurves:
     
@@ -88,6 +88,8 @@ class SwiftLigthCurves:
 
 if __name__ == '__main__':
     tool_name = 'swift'
-    myLc = SwiftLigthCurves(tool_name)
+    ''' myLc = SwiftLigthCurves(tool_name)
     swiftSources = myLc.getAllSources()
-    myLc.downloadLC(swiftSources)
+    myLc.downloadLC(swiftSources)'''
+    ourBayesian = OurBayesianBlocks()
+    pass

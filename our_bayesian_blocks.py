@@ -14,7 +14,8 @@ class OurBayesianBlocks:
     __blks = None
     __lc = None
 
-    def __init__(self,tool_name,source):
+    def calculate_bayesian_blocks(self,tool_name):
+
         lc = self.__sources = self.__db['sources'].find({'tool_name':tool_name,'source':source},{'lc':1,'_id':0})
         LC_Data = StringIO(lc[0]['lc'])
         dict_data = {}

@@ -1,6 +1,5 @@
 import params
 import os.path
-from urllib.request import urlretrieve
 import threading
 import time
 import sys
@@ -13,6 +12,7 @@ import numpy as np
 import BayesianBlocks
 from datetime import datetime
 from matplotlib import pyplot as plt
+import requests
 
 class MaxiLightCurves:
     
@@ -37,22 +37,21 @@ class MaxiLightCurves:
             url = p_source['ligth_curves']['daily']
 
         try:
-            print(name)
-            urlretrieve(url,filename=filename)
-            print (filename)
-            buffer = open(filename, 'rt').read()
-            p_source['lc'] = buffer
-            df = pd.read_csv(filename, sep='\s+', header=None)            
-            new1 = df[(df > 0).all(1)]
+            page = requests.get(url)
+            make_update = True
+            if page.status_code == 200:
+                texto = page.text
+                p_source['lc'] = texto
+                p_source['last_update'] = datetime.now() 
+                #Descomentar si es necesario
+                #p_source.pop('bokeh',None)
+            else:
+                make_update = False
+                self.__errors.append(name)
 
-        
-            p = figure(x_axis_label='Hardness ratio', y_axis_label='FLUX')
-            p.circle(new1[5]/(new1[3]), new1[5]+new1[3], size=4)
-            filename_html = filename.replace('txt','html')
-            output_file(filename_html)
-            save(p)
-            p_source['bokeh'] = open(filename_html,'rt').read()
-            self.__db['sources'].save(p_source)
+            if make_update:
+                self.__db['sources'].save(p_source)
+            
         except:
             print(traceback.format_exc())
             self.__errors.append(name)
