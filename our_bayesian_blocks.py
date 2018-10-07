@@ -4,6 +4,7 @@ import numpy as np
 import BayesianBlocks
 #from matplotlib import pyplot as plt
 from io import StringIO
+import json
 
 
 class OurBayesianBlocks:
@@ -13,12 +14,17 @@ class OurBayesianBlocks:
     __client = params.client
     __blks = None
     __lc = None
+    __source = None
 
-    def calculate_bayesian_blocks(self,tool_name):
 
-        lc = self.__sources = self.__db['sources'].find({'tool_name':tool_name,'source':source},{'lc':1,'_id':0})
-        LC_Data = StringIO(lc[0]['lc'])
+
+    def calculate_bayesian_blocks(self,tool_name, source):
+
+        self.__source = self.__db['sources'].find({'tool_name':tool_name,'source':source})
+        lc = self.__source[0]['lc']
+        LC_Data = StringIO(lc)
         dict_data = {}
+        
         
 
         df = pd.read_csv(LC_Data, sep='\s+', header=None)
@@ -27,7 +33,7 @@ class OurBayesianBlocks:
         idx_flux = 0
         idx_err  = 0
         if tool_name == 'maxi':
-            idx_flux = 5,
+            idx_flux = 5
             idx_err = 6
         elif tool_name == 'swift':
             idx_flux = 1
@@ -49,8 +55,28 @@ class OurBayesianBlocks:
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
         #plt.plot(t_blocks, x_blocks)        
         #plt.show()
+    
+    def hasActivity(self):
+        return self.__source[0]['activityValue'] > 0
+    def getActivity(self):
+        return self.__source[0]['activityValue']
+    def setActivity(self, activityValue):
+        mySource=self.__source[0]
+        mySource['activityValue'] = activityValue
+        self.__db['sources'].replace_one({'source':mySource['source']},mySource)
 
-    def getOutbursts(self):
+    def getLightCurve(self):
+        return self.__lc
+
+    def getThreshold(self):
+        median = self.__lc.median()[1]
+        sigma = self.__lc.mad()[1]
+        FWHM = 2 * np.sqrt(2*np.log(2))*sigma
+        threshold = (float(median + (sigma*FWHM)))/2
+        return threshold
+
+
+    def getOutbursts(self,source):
 
         median = self.__lc.median()[1]
         sigma = self.__lc.mad()[1]
@@ -75,7 +101,7 @@ class OurBayesianBlocks:
 
         for xb in x_blks:
             idx = x_blks.index(xb)
-            if xb >= umbral and (append_outburst == True or append_outburst == None):                
+            if xb > umbral and (append_outburst == True or append_outburst == None):                
                 x_blk_ant = x_blks[idx-1]
                 pctge = (x_blk_ant/xb)*100
                 activity_blocks.append(blks['bins'][idx])
@@ -85,23 +111,32 @@ class OurBayesianBlocks:
                 append_outburst = True
                 if pctge >= acceptance_pctge:                    
                     if width  >= min_width:
-                        outburst.append(1)
                         print(pctge)
                         print ("Outbust Found")
                         print (activity_blocks[0][0])
+                        outburst.append({'init':str(activity_blocks[0][0]),'end':str(-1)})
                         append_outburst = False
                     else:
                         activity_blocks = []
                 else:
                     activity_blocks = []
-            if xb < umbral and append_outburst == False:
-                if x_blks[idx+1] < umbral and x_blks[idx+2] < umbral:
-                    append_outburst = True                    
-                    activity_blocks = []
+            if xb <= umbral and append_outburst == False:
+                try:
+                    if x_blks[idx+1] < umbral and x_blks[idx+2] < umbral:
+                        outburst[len(outburst)-1]['end'] = str(blks['bins'][idx+1][1])
+                except:
+                    print("Eliminando Outbursts")
+                    outburst.pop(-1)
+                append_outburst = True                    
+                activity_blocks = []
+
+
 
 
         print("Number of Outbursts: "+str(len(outburst)))
         print("Threshold: "+str(umbral))
+        print(outburst)
+        #return outburst
 
         
 
@@ -115,18 +150,20 @@ class OurBayesianBlocks:
         t_blocks = list(sum(blks['bins'], ()))  # Flatten list of tuples for plt.plot()
         x_temp = zip(blks['x_blocks'], blks['x_blocks'])
         x_blocks = list(sum(x_temp, ()))  # Flatten list of tuples for plt.plot()
-        #plt.plot(t_blocks, x_blocks) 
-        #plt.plot(self.__lc[0],df_umbral)
-        #plt.show()
+        plt.plot(t_blocks, x_blocks) 
+        plt.plot(self.__lc[0],df_umbral)
+        plt.show()
 
 
 
 
 if __name__ == '__main__':
+    myBlk = OurBayesianBlocks()
     #myBlk = OurBayesianBlocks('maxi','Aql X-1')
     #myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
     #myBlk = OurBayesianBlocks('maxi','4U 1630-472')
     #myBlk = OurBayesianBlocks('maxi','RX J0520.5-6932')
-    #myBlk = OurBayesianBlocks('maxi','SAX J1747.0-2853')
-    myBlk = OurBayesianBlocks('swift','QSO B0003-066')
-    myBlk.getOutbursts()
+    #myBlk.calculate_bayesian_blocks('maxi','SAX J1747.0-2853')
+    #myBlk = OurBayesianBlocks('swift','QSO B0003-066')
+    myBlk.calculate_bayesian_blocks('swift','NGC 104')
+    myBlk.getOutbursts('NGC 104')

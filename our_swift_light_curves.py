@@ -47,6 +47,20 @@ class SwiftLigthCurves:
                                          'source':p_source['source']
                                         }, p_source)
             print(p_source['source']+' Grabado')
+            print("========================================")
+            print("Calculando Bayesian Blocks")
+            print("========================================")
+            bayBlock = OurBayesianBlocks()
+            bayBlock.calculate_bayesian_blocks('swift',p_source['source'])
+            print("Buscando Outbursts de :"+p_source['source'])
+            outbursts =  bayBlock.getOutbursts(p_source['source'])
+            if len(outbursts) > 0:
+                p_source['outbursts'] = outbursts
+                p_source['last_update'] = datetime.now()
+                self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
+                                            'source':p_source['source']
+                                            }, p_source)
+
 
     def __init__(self,id):
         self.__sources = self.__db['sources'].find({'tool_name':id},no_cursor_timeout=True)
@@ -88,8 +102,6 @@ class SwiftLigthCurves:
 
 if __name__ == '__main__':
     tool_name = 'swift'
-    ''' myLc = SwiftLigthCurves(tool_name)
+    myLc = SwiftLigthCurves(tool_name)
     swiftSources = myLc.getAllSources()
-    myLc.downloadLC(swiftSources)'''
-    ourBayesian = OurBayesianBlocks()
-    pass
+    myLc.downloadLC(swiftSources)
