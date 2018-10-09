@@ -47,7 +47,7 @@ class SwiftLigthCurves:
                                          'source':p_source['source']
                                         }, p_source)
             print(p_source['source']+' Grabado')
-            print("========================================")
+            '''print("========================================")
             print("Calculando Bayesian Blocks")
             print("========================================")
             bayBlock = OurBayesianBlocks()
@@ -59,7 +59,7 @@ class SwiftLigthCurves:
                 p_source['last_update'] = datetime.now()
                 self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
                                             'source':p_source['source']
-                                            }, p_source)
+                                            }, p_source)'''
 
 
     def __init__(self,id):

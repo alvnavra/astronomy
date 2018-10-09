@@ -4,15 +4,12 @@ import threading
 import time
 import sys
 import pandas as pd
-from bokeh.plotting import figure, save
-from bokeh.io import output_file
 import traceback
 from os import remove
 import numpy as np
-import BayesianBlocks
 from datetime import datetime
-from matplotlib import pyplot as plt
 import requests
+from our_lc_analyzer import OurLCAnalyzer
 
 class MaxiLightCurves:
     
@@ -54,6 +51,8 @@ class MaxiLightCurves:
                 print("Grabando "+p_source['source'])
                 self.__db['sources'].save(p_source)
                 print(p_source['source']+' Grabado')
+                myClasif = OurLCAnalyzer()
+                myClasif.getClasif(p_source['tool_name'],p_source['source'])
             
         except:
             print(traceback.format_exc())

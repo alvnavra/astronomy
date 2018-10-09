@@ -11,6 +11,7 @@ class OurLCAnalyzer:
     __lc = None
 
     def getClasif(self, p_tool_name, p_source, p_regs=3):
+        print ("Clasificando: "+p_source)
         myBayesian = OurBayesianBlocks()
         myBayesian.calculate_bayesian_blocks(p_tool_name, p_source)
         threshold = myBayesian.getThreshold()
@@ -22,15 +23,17 @@ class OurLCAnalyzer:
         activity = myBayesian.hasActivity()
         if activity == False or myBayesian.getActivity() < 100:
             if secondToLast <  nextToLast < last :
-                activityPercentage = 25
+                activityPercentage = 0
                 if last > threshold :
-                    activityPercentage = 50
+                    activityPercentage = 25
                     if nextToLast > threshold :
-                        activityPercentage = 75
+                        activityPercentage = 50
                         if secondToLast > threshold :
-                            activityPercentage= 100
+                            activityPercentage= 75
                 myBayesian.setActivity(activityPercentage)
                 activity = True
+            else:
+                myBayesian.setActivity(0)
                    
         if myBayesian.getActivity() == 100 :
             if last < threshold and secondToLast < threshold :

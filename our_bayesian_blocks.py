@@ -20,8 +20,8 @@ class OurBayesianBlocks:
 
     def calculate_bayesian_blocks(self,tool_name, source):
 
-        self.__source = self.__db['sources'].find({'tool_name':tool_name,'source':source})
-        lc = self.__source[0]['lc']
+        self.__source = self.__db['sources'].find_one({'tool_name':tool_name,'source':source})
+        lc = self.__source['lc']
         LC_Data = StringIO(lc)
         dict_data = {}
         
@@ -57,11 +57,16 @@ class OurBayesianBlocks:
         #plt.show()
     
     def hasActivity(self):
-        return self.__source[0]['activityValue'] > 0
+        if 'activityValue' in self.__source.keys():
+            return self.__source['activityValue'] > 0
+        return False
     def getActivity(self):
-        return self.__source[0]['activityValue']
+        if 'activityValue' in self.__source.keys():
+            return self.__source['activityValue']
+        return -1
     def setActivity(self, activityValue):
-        mySource=self.__source[0]
+        mySource=self.__source
+        mySource.pop('_id',None)
         mySource['activityValue'] = activityValue
         self.__db['sources'].replace_one({'source':mySource['source']},mySource)
 
@@ -159,11 +164,13 @@ class OurBayesianBlocks:
 
 if __name__ == '__main__':
     myBlk = OurBayesianBlocks()
+    myBlk.calculate_bayesian_blocks('maxi','Abell 262')
+    myBlk.getOutbursts('Abell 262')
     #myBlk = OurBayesianBlocks('maxi','Aql X-1')
     #myBlk = OurBayesianBlocks('maxi','GS 0834-430 with GS 0836-429')
     #myBlk = OurBayesianBlocks('maxi','4U 1630-472')
     #myBlk = OurBayesianBlocks('maxi','RX J0520.5-6932')
     #myBlk.calculate_bayesian_blocks('maxi','SAX J1747.0-2853')
     #myBlk = OurBayesianBlocks('swift','QSO B0003-066')
-    myBlk.calculate_bayesian_blocks('swift','NGC 104')
-    myBlk.getOutbursts('NGC 104')
+    #myBlk.calculate_bayesian_blocks('swift','NGC 104')
+    #myBlk.getOutbursts('NGC 104')
