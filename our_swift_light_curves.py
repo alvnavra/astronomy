@@ -44,17 +44,17 @@ class SwiftLigthCurves:
 
         if make_update:
             print("Grabando "+p_source['source'])
-            self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
+            self.__db['sources'].replace_one({'mission':p_source['mission'],
                                          'source':p_source['source']
                                         }, p_source)
             myClasif = OurLCAnalyzer()
-            myClasif.getClasif(p_source['tool_name'],p_source['source'])
+            myClasif.getClasif(p_source['mission'],p_source['source'])
 
             print(p_source['source']+' Grabado')
 
 
     def __init__(self,id):
-        self.__sources = self.__db['sources'].find({'tool_name':id},no_cursor_timeout=True)
+        self.__sources = self.__db['sources'].find({'mission':id},no_cursor_timeout=True)
 
     def getAllSources(self):
         return self.__sources
@@ -92,7 +92,7 @@ class SwiftLigthCurves:
         
 
 if __name__ == '__main__':
-    tool_name = 'swift'
-    myLc = SwiftLigthCurves(tool_name)
+    mission = 'swift'
+    myLc = SwiftLigthCurves(mission)
     swiftSources = myLc.getAllSources()
     myLc.downloadLC(swiftSources)

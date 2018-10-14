@@ -13,28 +13,28 @@ class Swift:
     __url_swift = 'https://swift.gsfc.nasa.gov/results/transients/index.html'
     
     def __init__(self,id):
-        fits = self.__db['parameters']
+        fits = self.__db['missions']
         rdo = fits.find_one(id)
         self.__url = rdo['urls'][0]['catalog_fits']
 
     def getUrl(self):
         return self.__url
 
-    def read_data_from_web(self,p_tool_name):
+    def read_data_from_web(self,p_mission):
         url_base_lc = 'https://swift.gsfc.nasa.gov/results/transients/weak/'
         srcs = self.__db['sources']
         tables, = pd.read_html(self.__url_swift,header=0)        
         i = 1
         for index, row in tables.iterrows():
             record = {}
-            record['tool_name'] = p_tool_name
+            record['mission'] = p_mission
             record['source']    = row['Source Name']
             record['ra_obj']    = row['RA J2000 Degs']
             record['dec_obj']   = row['Dec J2000 Degs']
             record['alt_name']  = row['Alternate Name']
             record['src_type']  = row['Source Type']
             record['url_lc_daily'] = url_base_lc + record['source'].replace(' ','').replace('+','p')+'.lc.txt'    
-            srcs.update({'tool_name':tool_name,'source':record['source']},record,upsert=True)
+            srcs.update({'mission':mission,'source':record['source']},record,upsert=True)
             if(i%100==0):
                 print("llevo %d registros" %i)
             i=i+1
@@ -77,7 +77,7 @@ class Swift:
                         print (header)
                 print(repr(hdr))
         
-    def readFits(self, tool_name, name, path=None):
+    def readFits(self, mission, name, path=None):
         file = ''
         if path != None:
             file = os.path.join(path,name)
@@ -95,7 +95,7 @@ class Swift:
         for r in rows:
             row = data[r]
             cols = range(0,len(data.names))
-            dict_row = {'tool_name':tool_name}
+            dict_row = {'mission':mission}
             for c in cols:
                 if isinstance(row[c],(str)):
                     if names[c].lower() == 'source' and \
@@ -109,16 +109,16 @@ class Swift:
             url_lc = url_base_lc+dict_row['source'].replace(' ','').replace('+','p')
             dict_lc_urls = {'daily':url_lc+'.lc.txt','orbital':url_lc+'.orbit.lc.txt'}
             dict_row['ligth_curves'] = dict_lc_urls
-            srcs.update({'tool_name':tool_name,'source':dict_row['source']},dict_row,upsert=True)
+            srcs.update({'mission':mission,'source':dict_row['source']},dict_row,upsert=True)
 
 
-    def readSources(self, tool_name):
-        params = self.__db['parameters'].find_one({'_id':tool_name})
+    def readSources(self, mission):
+        params = self.__db['missions'].find_one({'_id':mission})
         url_swift = params['urls'][0]['sources']
         '''TODO: La parte de encontrar las urls funciona. Comprobar la parte de tratarlas, que es
            la que viene a continuación'''
         exit(0)
-        srcs = self.__db['sources'].find_one({'tool_name':tool_name},{'sources':1,'_id':0})['sources']
+        srcs = self.__db['sources'].find_one({'mission':mission},{'sources':1,'_id':0})['sources']
         for src in srcs:
             modified_src = src.replace(' ','').replace('+','p')
             url_fit = url_swift+modified_src+'.lc.fits'
@@ -127,6 +127,6 @@ class Swift:
 
         
 if __name__ == '__main__':
-    tool_name = 'swift'
-    myFits = Swift(tool_name)
-    myFits.read_data_from_web(tool_name)
+    mission = 'swift'
+    myFits = Swift(mission)
+    myFits.read_data_from_web(mission)

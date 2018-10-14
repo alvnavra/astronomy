@@ -7,14 +7,14 @@ class Maxi:
     __client = params.client
 
     def __init__(self,id):
-        db = self.__db['parameters']
+        db = self.__db['missions']
         rdo = db.find_one(id)
         self.__url = rdo['url']
 
     def getUrl(self):
         return self.__url
 
-    def readSources(self, p_url, tool_name):
+    def readSources(self, p_url, mission):
         html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
         i = 0
         l_sources = []
@@ -58,6 +58,6 @@ class Maxi:
                     l_sources.append(dict_source)
         
         sources = self.__db['sources']        
-        dict_source = {'tool_name':tool_name,'sources':l_sources}
-        sources.update({'tool_name':tool_name},dict_source, upsert=True)
+        dict_source = {'mission':mission,'sources':l_sources}
+        sources.update({'mission':mission},dict_source, upsert=True)
                 

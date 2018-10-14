@@ -26,14 +26,14 @@ class Fermi:
     __client = params.client
     
     def __init__(self,id):
-        fits = self.__db['parameters']
+        fits = self.__db['missions']
         rdo = fits.find_one(id)
         self.__url = rdo['url']
 
     def getUrl(self):
         return self.__url
 
-    def readSources(self, p_url, tool_name):
+    def readSources(self, p_url, mission):
         html = str(urllib.request.urlopen(p_url).read()).replace('\\n','').replace('\\t','').replace(" border=2",'')
         l_tables = []
         fin_table = 999

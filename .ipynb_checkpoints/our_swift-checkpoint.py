@@ -10,7 +10,7 @@ class Fits:
     __client = params.client
     
     def __init__(self,id):
-        fits = self.__db['parameters']
+        fits = self.__db['missions']
         rdo = fits.find_one(id)
         self.__url = rdo['url']
 
@@ -53,7 +53,7 @@ class Fits:
                         print (header)
                 print(repr(hdr))
         
-    def readFits(self, tool_name, name, path=None):
+    def readFits(self, mission, name, path=None):
         file = ''
         if path != None:
             file = os.path.join(path,name)
@@ -68,7 +68,7 @@ class Fits:
         source_list = []
         srcs = self.__db['sources']
         dict_source = {}
-        dict_source['tool_name'] = tool_name
+        dict_source['mission'] = mission
         l_sources = []
         rng = range(0,len(lista))
         for r in rng:
@@ -77,10 +77,10 @@ class Fits:
         srcs.save(dict_source)
 
 
-    def readSources(self, tool_name):
-        params = self.__db['parameters'].find_one({'_id':tool_name})
+    def readSources(self, mission):
+        params = self.__db['missions'].find_one({'_id':mission})
         url_nasa = params['url_sources']
-        srcs = self.__db['sources'].find_one({'tool_name':tool_name},{'sources':1,'_id':0})['sources']
+        srcs = self.__db['sources'].find_one({'mission':mission},{'sources':1,'_id':0})['sources']
         for src in srcs:
             modified_src = src.replace(' ','').replace('+','p')
             url_fit = url_nasa+modified_src+'.lc.fits'

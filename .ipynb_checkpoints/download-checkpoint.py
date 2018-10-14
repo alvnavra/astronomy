@@ -13,22 +13,22 @@ import urllib.request'''
 
 fits = 3
 if fits == 1:
-    tool_name = 'swift'
-    myFits = Fits(tool_name)
+    mission = 'swift'
+    myFits = Fits(mission)
     url = myFits.getUrl()
     l_name = url.split('/')
     name = l_name[-1]
     myFits.downloadFits(url,name)
-    #myFits.readFits(tool_name, name)
-    myFits.readSources(tool_name)
+    #myFits.readFits(mission, name)
+    myFits.readSources(mission)
 elif fits == 2:
-    tool_name = 'maxi'
-    my_maxi = Maxi(tool_name)
+    mission = 'maxi'
+    my_maxi = Maxi(mission)
     url = my_maxi.getUrl()
-    my_maxi.readSources(url,tool_name)
+    my_maxi.readSources(url,mission)
 elif fits == 3:    
-    tool_name = 'fermi'
-    my_fermi = Fermi(tool_name)
+    mission = 'fermi'
+    my_fermi = Fermi(mission)
     url = my_fermi.getUrl()
-    my_fermi.readSources(url,tool_name)
+    my_fermi.readSources(url,mission)
 

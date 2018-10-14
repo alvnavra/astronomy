@@ -15,8 +15,8 @@ class AstropyBayesianBlocks:
     __blks = None
     __lc = None
 
-    def __init__(self,tool_name,source):
-        lc = self.__sources = self.__db['sources'].find({'tool_name':tool_name,'source':source},{'lc':1,'_id':0})
+    def __init__(self,mission,source):
+        lc = self.__sources = self.__db['sources'].find({'mission':mission,'source':source},{'lc':1,'_id':0})
         LC_Data = StringIO(lc[0]['lc'])
         df = pd.read_csv(LC_Data, sep='\s+', header=None)
         

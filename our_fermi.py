@@ -33,9 +33,9 @@ def findSimbd(p_SimbId):
             p_SimbId = p_SimbId.replace("+"," ",1)
             error = True
    
-def tratar_tabla(p_tabla, p_tool_name, p_collection):
+def tratar_tabla(p_tabla, p_mission, p_collection):
     #p_collection.drop({}) #Muy importante!!!!!! Esta línea se tiene que ejecutar en la primera fuente que se baje.
-    swift = p_collection.find({'tool_name':'swift','source':'GX 1+4'})
+    swift = p_collection.find({'mission':'swift','source':'GX 1+4'})
     tab = p_tabla
     tab = tab.replace('<table>','').replace('</table>','').replace("  ",'').replace('<tr>','').replace('<td>','').replace('<tr align=left>','')
     i = 0
@@ -79,7 +79,7 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
             dict_source['url_simbad'] = url_simb
             dict_source['simbad_id'] = name_simb
             dict_source['src_type'] = findSimbd(name_simb)
-            dict_source['tool_name']=p_tool_name
+            dict_source['mission']=p_mission
 
             if haveFits == True:
                 url_base = 'https://gammaray.nsstc.nasa.gov/gbm/science/pulsars/lightcurves/'
@@ -87,7 +87,7 @@ def tratar_tabla(p_tabla, p_tool_name, p_collection):
                 url_fits = (url_base+src_base+'.fits.gz').lower()
                 dict_source['ligth_curves'] = [url_fits]
 
-            p_collection.update({'tool_name':p_tool_name,'source':tag_source},dict_source,upsert=True)
+            p_collection.update({'mission':p_mission,'source':tag_source},dict_source,upsert=True)
             tab = tab[tr:]
             tr = tab.find(tag)
 
@@ -98,14 +98,14 @@ class Fermi:
     __client = params.client
     
     def __init__(self,id):
-        fits = self.__db['parameters']
+        fits = self.__db['missions']
         rdo = fits.find_one(id)
         self.__url = rdo['urls'][0]['sources']
 
     def getUrl(self):
         return self.__url
 
-    def readSources(self, p_url, tool_name):
+    def readSources(self, p_url, mission):
         html = str(urllib.request.urlopen(p_url).read()).replace('\\n','').replace('\\t','').replace(" border=2",'')
         l_tables = []
         fin_table = 999
@@ -119,11 +119,11 @@ class Fermi:
                 html = html[fin_table+len('</table>'):]
 
         for tab in l_tables:
-            tratar_tabla(tab, tool_name, self.__db['sources'])
+            tratar_tabla(tab, mission, self.__db['sources'])
 
 
 if __name__ == '__main__':
-    tool_name = 'fermi'
-    my_fermi = Fermi(tool_name)
+    mission = 'fermi'
+    my_fermi = Fermi(mission)
     url = my_fermi.getUrl()
-    my_fermi.readSources(url,tool_name)
+    my_fermi.readSources(url,mission)

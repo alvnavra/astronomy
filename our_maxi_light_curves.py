@@ -52,14 +52,14 @@ class MaxiLightCurves:
                 self.__db['sources'].save(p_source)
                 print(p_source['source']+' Grabado')
                 myClasif = OurLCAnalyzer()
-                myClasif.getClasif(p_source['tool_name'],p_source['source'])
+                myClasif.getClasif(p_source['mission'],p_source['source'])
             
         except:
             print(traceback.format_exc())
             self.__errors.append(name)
 
     def __init__(self,id):
-        self.__sources = self.__db['sources'].find({'tool_name':id},no_cursor_timeout=True)
+        self.__sources = self.__db['sources'].find({'mission':id},no_cursor_timeout=True)
 
     def getAllSources(self):
         return self.__sources
@@ -90,8 +90,8 @@ class MaxiLightCurves:
             print (error)
 
 if __name__ == '__main__':
-    tool_name = 'maxi'
-    myLc = MaxiLightCurves(tool_name)
+    mission = 'maxi'
+    myLc = MaxiLightCurves(mission)
     maxiSources = myLc.getAllSources()
 
     if len(sys.argv)>1 and sys.argv[1] in ['-o','--orbital']:

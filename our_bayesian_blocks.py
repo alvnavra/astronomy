@@ -19,9 +19,9 @@ class OurBayesianBlocks:
 
 
 
-    def calculate_bayesian_blocks(self,tool_name, source):
+    def calculate_bayesian_blocks(self,mission, source):
 
-        self.__source = self.__db['sources'].find_one({'tool_name':tool_name,'source':source})
+        self.__source = self.__db['sources'].find_one({'mission':mission,'source':source})
         lc = self.__source['lc']
         LC_Data = StringIO(lc)
         dict_data = {}
@@ -33,10 +33,10 @@ class OurBayesianBlocks:
         idx_time = 0
         idx_flux = 0
         idx_err  = 0
-        if tool_name == 'maxi':
+        if mission == 'maxi':
             idx_flux = 5
             idx_err = 6
-        elif tool_name == 'swift':
+        elif mission == 'swift':
             idx_flux = 1
             idx_err = 2
 
@@ -70,7 +70,7 @@ class OurBayesianBlocks:
         mySource.pop('_id',None)
         mySource['activityValue'] = activityValue
         mySource['last_update'] = datetime.now()
-        self.__db['sources'].replace_one({'source':mySource['source'],'tool_name':mySource['tool_name']},mySource)
+        self.__db['sources'].replace_one({'source':mySource['source'],'mission':mySource['mission']},mySource)
 
     def getLightCurve(self):
         return self.__lc

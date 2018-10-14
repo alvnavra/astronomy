@@ -10,10 +10,10 @@ class OurLCAnalyzer:
     __client = params.client
     __lc = None
 
-    def getClasif(self, p_tool_name, p_source, p_regs=3):
+    def getClasif(self, p_mission, p_source, p_regs=3):
         print ("Clasificando: "+p_source)
         myBayesian = OurBayesianBlocks()
-        myBayesian.calculate_bayesian_blocks(p_tool_name, p_source)
+        myBayesian.calculate_bayesian_blocks(p_mission, p_source)
         threshold = myBayesian.getThreshold()
         self.__lc = myBayesian.getLightCurve()
         df = self.__lc

@@ -7,7 +7,7 @@ class Maxi:
     __client = params.client
 
     def __init__(self,id):
-        db = self.__db['parameters']
+        db = self.__db['missions']
         rdo = db.find_one(id)
         self.__url = rdo['urls'][0]['sources_list']
 
@@ -57,13 +57,13 @@ class Maxi:
 
                 type_src = l_lna[5].replace('<td>','').replace('\n','').strip()
                 if source.find(',') < 0:
-                    query = {'tool_name':'maxi','source':source}
+                    query = {'mission':'maxi','source':source}
                     url_base_lc = 'http://maxi.riken.jp/star_data/'
                     dict_source = sources.find_one(query)
                     if dict_source == None:
                         dict_source = {}
                         dict_source['source'] = source
-                        dict_source['tool_name'] = 'maxi'
+                        dict_source['mission'] = 'maxi'
                                           
                     dict_source['src_type'] = type_src
                     dict_source['ra_obj'] = float(str_ra_obj)
@@ -78,12 +78,12 @@ class Maxi:
                 else:
                     l_names = source.split(',')
                     for  name in l_names:
-                        query = {'tool_name':'maxi','source':name}
+                        query = {'mission':'maxi','source':name}
                         dict_source = sources.find_one(query)
                         if dict_source == None:
                             dict_source = {}
                             dict_source['source'] = name
-                            dict_source['tool_name'] = 'maxi'
+                            dict_source['mission'] = 'maxi'
                             url_base_lc = 'http://maxi.riken.jp/star_data/'
                         if len(dict_source) > 0:
                             dict_source['src_type'] = type_src
@@ -106,7 +106,7 @@ class Maxi:
             
         
 
-    def readSources(self, p_url, tool_name):
+    def readSources(self, p_url, mission):
         html = str(urllib.request.urlopen(p_url).read()).replace('\\n','')
         i = 0
         l_sources = []
@@ -146,20 +146,20 @@ class Maxi:
                     print(url)
                     print(url_lc_1day)
                     print(url_lc_1orb)
-                    dict_source = {'source':source,'url':url,'url_1_orb':url_lc_1orb,'url_1_day':url_lc_1day,'tool_name':tool_name}
+                    dict_source = {'source':source,'url':url,'url_1_orb':url_lc_1orb,'url_1_day':url_lc_1day,'mission':mission}
                     sources = self.__db['sources']
                     sources.update({'source':source},dict_source,upsert=True)
 
-    def readTypes(self, p_tool_name):
-        parameters = self.__db['parameters']
-        sources_types_url = parameters.find_one({'_id':p_tool_name},{'urls':1,'_id':0})['urls'][0]['sources_info']
+    def readTypes(self, p_mission):
+        missions = self.__db['missions']
+        sources_types_url = missions.find_one({'_id':p_mission},{'urls':1,'_id':0})['urls'][0]['sources_info']
         for url in sources_types_url:
             self.returnTypes(url)
 
 
         '''sources = self.__db['sources']        
-        dict_source = {'tool_name':tool_name,'sources':l_sources}
-        sources.update({'tool_name':tool_name},dict_source, upsert=True)'''
+        dict_source = {'mission':mission,'sources':l_sources}
+        sources.update({'mission':mission},dict_source, upsert=True)'''
 
 if __name__ == '__main__':
     maxi = Maxi('maxi')
