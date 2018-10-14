@@ -5,7 +5,8 @@ import sys
 import requests
 from datetime import datetime
 import re
-from our_bayesian_blocks import OurBayesianBlocks
+from our_lc_analyzer import OurLCAnalyzer
+
 
 class SwiftLigthCurves:
     
@@ -46,20 +47,10 @@ class SwiftLigthCurves:
             self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
                                          'source':p_source['source']
                                         }, p_source)
+            myClasif = OurLCAnalyzer()
+            myClasif.getClasif(p_source['tool_name'],p_source['source'])
+
             print(p_source['source']+' Grabado')
-            '''print("========================================")
-            print("Calculando Bayesian Blocks")
-            print("========================================")
-            bayBlock = OurBayesianBlocks()
-            bayBlock.calculate_bayesian_blocks('swift',p_source['source'])
-            print("Buscando Outbursts de :"+p_source['source'])
-            outbursts =  bayBlock.getOutbursts(p_source['source'])
-            if len(outbursts) > 0:
-                p_source['outbursts'] = outbursts
-                p_source['last_update'] = datetime.now()
-                self.__db['sources'].replace_one({'tool_name':p_source['tool_name'],
-                                            'source':p_source['source']
-                                            }, p_source)'''
 
 
     def __init__(self,id):

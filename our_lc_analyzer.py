@@ -21,7 +21,11 @@ class OurLCAnalyzer:
         nextToLast = df[1].iloc[-2]
         secondToLast= df[1].iloc[-3]
         activity = myBayesian.hasActivity()
-        if activity == False or myBayesian.getActivity() < 100:
+        '''Eliminamos la variable booleana 'activity' pk no tiene sentido.
+           No tener actividad, significa actividad 0 (o -1 si no se ha informado
+           previamente). Que es menor que 100 (en ambos casos), por lo tanto, 
+           eliminamos el control'''
+        if myBayesian.getActivity() < 100:
             if secondToLast <  nextToLast < last :
                 activityPercentage = 0
                 if last > threshold :
@@ -31,13 +35,12 @@ class OurLCAnalyzer:
                         if secondToLast > threshold :
                             activityPercentage= 75
                 myBayesian.setActivity(activityPercentage)
-                activity = True
             else:
                 myBayesian.setActivity(0)
                    
         if myBayesian.getActivity() == 100 :
             if last < threshold and secondToLast < threshold :
-                activity = False        
+                myBayesian.setActivity(0)       
 
     
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ import numpy as np
 import BayesianBlocks
 #from matplotlib import pyplot as plt
 from io import StringIO
+from datetime import datetime
 import json
 
 
@@ -68,7 +69,8 @@ class OurBayesianBlocks:
         mySource=self.__source
         mySource.pop('_id',None)
         mySource['activityValue'] = activityValue
-        self.__db['sources'].replace_one({'source':mySource['source']},mySource)
+        mySource['last_update'] = datetime.now()
+        self.__db['sources'].replace_one({'source':mySource['source'],'tool_name':mySource['tool_name']},mySource)
 
     def getLightCurve(self):
         return self.__lc
