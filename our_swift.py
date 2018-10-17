@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from astropy.io import fits
 from astropy.table import Table
 import os

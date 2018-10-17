@@ -1,0 +1,32 @@
+[{
+    "_id" : "swift",
+    "urls" : [ 
+        {
+            "catalog_fits" : "https://swift.gsfc.nasa.gov/results/transients/BAT_catalog.fits",
+            "sources" : "https://swift.gsfc.nasa.gov/results/transients/weak/"
+        }
+    ]
+}
+,
+{
+    "_id" : "maxi",
+    "urls" : [ 
+        {
+            "sources_list" : "http://maxi.riken.jp/top/slist.html",
+            "sources_light_curves" : "http://maxi.riken.jp/star_data/",
+            "sources_info" : [ 
+                "http://maxi.riken.jp/pubdata/v3/", 
+                "http://maxi.riken.jp/pubdata/v3.rkn/"
+            ]
+        }
+    ]
+},
+{
+    "_id" : "fermi",
+    "urls" : [ 
+        {
+            "sources" : "https://gammaray.nsstc.nasa.gov/gbm/science/pulsars.html"
+        }
+    ]
+}
+]
