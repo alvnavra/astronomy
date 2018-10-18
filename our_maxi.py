@@ -1,5 +1,6 @@
 import params
 import urllib.request
+from astroquery.simbad import Simbad
 
 class Maxi:
     __url = params.url
@@ -73,6 +74,9 @@ class Maxi:
                     url_lc = url_base_lc+name_lc+'/'+name_lc
                     dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                     dict_source['ligth_curves'] = dict_lc_urls
+                    result_table = Simbad.query_objectids(dict_source['source'])
+                    if result_table != None:
+                        dict_source['alt_names'] = [r['ID'] for r in result_table]
 
                     sources.update(query,dict_source,upsert=True)
                 else:
@@ -94,6 +98,9 @@ class Maxi:
                             url_lc = url_base_lc+name_lc+'/'+name_lc
                             dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                             dict_source['ligth_curves'] = dict_lc_urls
+                            result_table = Simbad.query_objectids(dict_source['source'])
+                            if result_table != None:
+                                dict_source['alt_names'] = [r['ID'] for r in result_table]
                   
                             sources.update(query,dict_source,upsert=True)
                             break
