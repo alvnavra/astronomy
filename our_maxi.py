@@ -2,6 +2,14 @@ import params
 import urllib.request
 from astroquery.simbad import Simbad
 
+def search_simbad(p_source):
+    result_table = Simbad.query_objectids(p_source)
+    results = None
+    if result_table != None:
+        results = [r['ID'] for r in result_table]
+    return results
+
+
 class Maxi:
     __url = params.url
     __db = params.db
@@ -65,7 +73,7 @@ class Maxi:
                         dict_source = {}
                         dict_source['source'] = source
                         dict_source['mission'] = 'maxi'
-                                          
+
                     dict_source['src_type'] = type_src
                     dict_source['ra_obj'] = float(str_ra_obj)
                     dict_source['dec_obj'] = float(str_dec_obj)
@@ -74,9 +82,40 @@ class Maxi:
                     url_lc = url_base_lc+name_lc+'/'+name_lc
                     dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                     dict_source['ligth_curves'] = dict_lc_urls
-                    result_table = Simbad.query_objectids(dict_source['source'])
-                    if result_table != None:
-                        dict_source['alt_names'] = [r['ID'] for r in result_table]
+                    result_table = search_simbad(dict_source['source'])
+                    if result_table == None:
+                        with_pos = dict_source['source'].find('with')
+                        if with_pos >= 0:
+                            id_simbad = dict_source['source'][:with_pos-1]
+                            under_pos = id_simbad.find('_')
+                            if under_pos < 0:
+                                result_table = search_simbad(id_simbad)
+                                if result_table != None:
+                                    dict_source['alt_names'] = result_table
+                            else:
+                                id_simbad = id_simbad[:under_pos]
+                                result_table = search_simbad(id_simbad)    
+                                if result_table != None:
+                                    dict_source['alt_names'] = result_table
+                        else:
+                            and_pos = dict_source['source'].find('and')
+                            if and_pos < 0:
+                                l_src = dict_source['source'].split(' ')
+                                l_src.pop(-1)
+                                id_simbad = ' '.join(l_src)
+                                result_table = search_simbad(id_simbad)
+                                if result_table != None:
+                                    dict_source['alt_names'] = result_table
+                            else:
+                                id_simbad = dict_source['source'][:and_pos-1]
+                                result_table = search_simbad(id_simbad)
+                                if result_table != None:
+                                    dict_source['alt_names'] = result_table
+
+
+                    else:
+                        dict_source['alt_names'] = result_table
+
 
                     sources.update(query,dict_source,upsert=True)
                 else:
@@ -99,9 +138,38 @@ class Maxi:
                             dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                             dict_source['ligth_curves'] = dict_lc_urls
                             result_table = Simbad.query_objectids(dict_source['source'])
-                            if result_table != None:
-                                dict_source['alt_names'] = [r['ID'] for r in result_table]
-                  
+                            if result_table == None:
+                                with_pos = dict_source['source'].find('with')
+                                if with_pos >= 0:
+                                    id_simbad = dict_source['source'][:with_pos-1]
+                                    under_pos = id_simbad.find('_')
+                                    if under_pos < 0:
+                                        result_table = search_simbad(id_simbad)
+                                        if result_table != None:
+                                            dict_source['alt_names'] = result_table
+                                    else:
+                                        id_simbad = id_simbad[:under_pos]
+                                        result_table = search_simbad(id_simbad)    
+                                        if result_table != None:
+                                            dict_source['alt_names'] = result_table
+                                else:
+                                    and_pos = dict_source['source'].find('and')
+                                    if and_pos < 0:
+                                        l_src = dict_source['source'].split(' ')
+                                        l_src.pop(-1)
+                                        id_simbad = ' '.join(l_src)
+                                        result_table = search_simbad(id_simbad)
+                                        if result_table != None:
+                                            dict_source['alt_names'] = result_table
+                                    else:
+                                        id_simbad = dict_source['source'][:and_pos-1]
+                                        result_table = search_simbad(id_simbad)
+                                        if result_table != None:
+                                            dict_source['alt_names'] = result_table
+
+
+                            else:
+                                dict_source['alt_names'] = result_table
                             sources.update(query,dict_source,upsert=True)
                             break
 
