@@ -119,6 +119,8 @@ class Maxi:
 
                     sources.update(query,dict_source,upsert=True)
                 else:
+                    if source.find('Vela Pulsar') >= 0:
+                        print ("Lo hemos encontrado.")
                     l_names = source.split(',')
                     for  name in l_names:
                         query = {'mission':'maxi','source':name}
@@ -137,7 +139,7 @@ class Maxi:
                             url_lc = url_base_lc+name_lc+'/'+name_lc
                             dict_lc_urls = {'daily':url_lc+'_g_lc_1day_all.dat','orbital':url_lc+'_g_lc_1orb_all.dat'}
                             dict_source['ligth_curves'] = dict_lc_urls
-                            result_table = Simbad.query_objectids(dict_source['source'])
+                            result_table = search_simbad(dict_source['source'])
                             if result_table == None:
                                 with_pos = dict_source['source'].find('with')
                                 if with_pos >= 0:
@@ -170,6 +172,7 @@ class Maxi:
 
                             else:
                                 dict_source['alt_names'] = result_table
+
                             sources.update(query,dict_source,upsert=True)
                             break
 
