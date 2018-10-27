@@ -5,6 +5,14 @@ import os
 import params
 import pandas as pd
 import urllib.request
+from astroquery.simbad import Simbad
+
+def search_simbad(p_source):
+    result_table = Simbad.query_objectids(p_source)
+    results = None
+    if result_table != None:
+        results = [r['ID'] for r in result_table]
+    return results
 
 class Swift:
     
@@ -35,6 +43,12 @@ class Swift:
             record['alt_name']  = row['Alternate Name']
             record['src_type']  = row['Source Type']
             record['url_lc_daily'] = url_base_lc + record['source'].replace(' ','').replace('+','p')+'.lc.txt'    
+            pos_maxi = record['source'].find('MAXI')
+            if pos_maxi < 0:
+                record['alt_names'] = search_simbad(record['source'])
+            else:
+                pos_ini = pos_maxi+len('MAXI')+1
+                record['alt_names'] = search_simbad(record['source'][pos_ini:])
             srcs.update({'mission':mission,'source':record['source']},record,upsert=True)
             if(i%100==0):
                 print("llevo %d registros" %i)
