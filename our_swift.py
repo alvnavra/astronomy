@@ -6,13 +6,32 @@ import params
 import pandas as pd
 import urllib.request
 from astroquery.simbad import Simbad
+import traceback
 
 def search_simbad(p_source):
+    url = 'http://simbad.cfa.harvard.edu/simbad/sim-id?Ident='+p_source.replace('+','%2B').replace(' ','+')+'&submit=submit+id'
+    results = []
+
     result_table = Simbad.query_objectids(p_source)
     results = None
     if result_table != None:
         results = [r['ID'] for r in result_table]
+        return results
+
+    try:
+        results = []
+        results_url = pd.read_html(url)
+        if len(results_url) >= 8:
+            result_table = results_url[8]
+            values = result_table.values
+            for vals in values:
+                for v in vals:
+                    results.append(v)
+    except:
+        print(traceback.format_exc())
+    
     return results
+
 
 class Swift:
     
